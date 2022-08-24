@@ -31,6 +31,7 @@ class SysStat:
         'power': power,
         'position': position,
         'malfunction': False,
+        'book': Protocol.off_board
     }
     
     def __init__(self) -> None:
@@ -54,4 +55,13 @@ class SysStat:
         
     def get_power(self, param):
         return self.power[param]
+    
+    
+    def get_book_stat(self):
+        return self.params['book']
+    
+    
+    def update_book_stat(self, stat):
+        self.params['book'] = stat
+        self.mongo.update_document(self.params)
 

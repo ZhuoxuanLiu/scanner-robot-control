@@ -34,7 +34,10 @@ class Protocol:
     feedback = '1'
     result = '2'
     
-    stop = '0'
+    # book on board or not
+    off_board = '0'
+    on_board = '1'
+    
     
 
 
