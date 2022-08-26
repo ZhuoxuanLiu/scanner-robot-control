@@ -1,322 +1,371 @@
 #include "protocol.h"
 
 
-void handle_protocol(void)
+uint8_t tim6_result_data[4];
+uint8_t tim7_result_data[4];
+uint8_t extra_result_data[4];
+uint8_t feedback_data[4];
+uint8_t type;
+uint8_t head;
+uint8_t mode;
+uint8_t body;
+
+void tim6_result_str(Motor *motor)
 {
+	uint8_t data[4];
+	tim6_result_data[0] = RESULT;
+	tim6_result_data[1] = motor->name;
+	tim6_result_data[2] = motor->position;
+	tim6_result_data[3] = BAK;
+}
+
+void tim7_result_str(Motor *motor)
+{
+	tim7_result_data[0] = RESULT;
+	tim7_result_data[1] = motor->name;
+	tim7_result_data[2] = motor->position;
+	tim7_result_data[3] = BAK;
+}
+
+void extra_result_str(uint8_t name, uint8_t stat)
+{
+	extra_result_data[0] = RESULT;
+	extra_result_data[1] = name;
+	extra_result_data[2] = stat;
+	extra_result_data[3] = BAK;
+}
+
+void motor_pos_feedback_str(Motor *motor)
+{
+	feedback_data[0] = FEEDBACK;
+	feedback_data[1] = motor->name;
+	feedback_data[2] = motor->position;
+	feedback_data[3] = BAK;
+}
+
+float parse_per(uint8_t data)
+{
+	float per;
+	switch (data)
+	{
+	case '1':
+		per = 0.1;
+		break;
+
+	case '2':
+		per = 0.2;
+		break;
+
+	case '3':
+		per = 0.3;
+		break;
+
+	case '4':
+		per = 0.4;
+		break;
+
+	case '5':
+		per = 0.5;
+		break;
+
+	case '6':
+		per = 0.6;
+		break;
+	
+	case '7':
+		per = 0.7;
+		break;
+
+	case '8':
+		per = 0.8;
+		break;
+
+	case '9':
+		per = 0.9;
+		break;
+
+	case 'x':
+		per = 1;
+		break;
+	
+	default:
+		per = 1;
+		break;
+	}
+	return per;
+}
+{
+	return motor->position;
+}  
+
+void handle_htim6_queue(void)
+{
+	uint8_t *recv_buf;
+	recv_buf = QueueFront(&htim6_queue);
+	QueuePop(&htim6_queue);
+	type = recv_buf[0];
+	head = recv_buf[1];
+	mode = recv_buf[2];
+	body = recv_buf[3];
+
 	if (type == CHECK)
 	{
-		if (head == Base_Motor_Msg)
+		if (head == Body_Motor_Msg)
 		{
-			if (body == POSITION_CHECK)
+			if (mode == POSITION_CHECK)
 			{
-				if (Base_Position == ROTATED)
-				{
-					UART_Send(NOT_RESETED_str);
-				}
-				else
-				{
-					UART_Send(RESETED_str);
-				}
-			}
-		}
-		else if (head == Body_Motor_Msg)
-		{
-			if (body == POSITION_CHECK)
-			{
-				if (Body_Position == STRETCHED)
-				{
-					UART_Send(NOT_RESETED_str);
-				}
-				else
-				{
-					UART_Send(RESETED_str);
-				}
+				motor_pos_feedback_str(body_motor);
+				UART_Send(feedback_data);
 			}
 		}
 		else if (head == Head_Motor_Msg)
 		{
-			if (body == POSITION_CHECK)
+			if (mode == POSITION_CHECK)
 			{
-				if (Head_Position == ROTATED)
-				{
-					UART_Send(NOT_RESETED_str);
-				}
-				else
-				{
-					UART_Send(RESETED_str);
-				}
-			}
-		}
-		else if (head == Lift_Motor_Msg)
-		{
-			if (body == POSITION_CHECK)
-			{
-				if (Lift_Position == HIGH)
-				{
-					UART_Send(NOT_RESETED_str);
-				}
-				else
-				{
-					UART_Send(RESETED_str);
-				}
-			}
-		}
-		else if (head == Pushing_book_Motor_Msg)
-		{
-			if (body == POSITION_CHECK)
-			{
-				if (Pushing_book_Position == FRONT)
-				{
-					UART_Send(NOT_RESETED_str);
-				}
-				else
-				{
-					UART_Send(RESETED_str);
-				}
-			}
-		}
-		else if (head == Forward_pressing_board_Motor_Msg)
-		{
-			if (body == POSITION_CHECK)
-			{
-				if (Forward_pressing_board_Position == FRONT)
-				{
-					UART_Send(NOT_RESETED_str);
-				}
-				else
-				{
-					UART_Send(RESETED_str);
-				}
+				motor_pos_feedback_str(head_motor);
+				UART_Send(feedback_data);
 			}
 		}
 		else if (head == Pressing_board_Motor_Msg)
 		{
-			if (body == POSITION_CHECK)
+			if (mode == POSITION_CHECK)
 			{
-				if (Pressing_board_Position == LOW)
-				{
-					UART_Send(NOT_RESETED_str);
-				}
-				else
-				{
-					UART_Send(RESETED_str);
-				}
+				motor_pos_feedback_str(pressing_board_motor);
+				UART_Send(feedback_data);
 			}
-		}
+		} 
 		else if (head == Rotating_shelf_Motor_Msg)
 		{
-			if (body == POSITION_CHECK)
+			if (mode == POSITION_CHECK)
 			{
-				if (Rotating_shelf_Position == ROTATED)
-				{
-					UART_Send(NOT_RESETED_str);
-				}
-				else
-				{
-					UART_Send(RESETED_str);
-				}
+				motor_pos_feedback_str(rotating_shelf_motor);
+				UART_Send(feedback_data);
 			}
-		}
+		} 
 
 	}
-	else if (type == FEEDBACK)
+	else if (type == RESET)
 	{
-		if (head == Base_Motor_Msg)
+		if (head == Body_Motor_Msg)
 		{
-			if (body == NOT_RESETED_Msg)
-			{
-				Base_Position = ROTATED;
-			}
-			else if (body == RESETED_Msg)
-			{
-				Base_Position = RESETED;
-			}
-		}
-		else if (head == Body_Motor_Msg)
-		{
-			if (body == NOT_RESETED_Msg)
-			{
-				Body_Position = STRETCHED;
-			}
-			else if (body == RESETED_Msg)
-			{
-				Body_Position = RESETED;
-			}
+			body_motor->position = mode;
 		}
 		else if (head == Head_Motor_Msg)
 		{
-			if (body == NOT_RESETED_Msg)
-			{
-				Head_Position = ROTATED;
-			}
-			else if (body == RESETED_Msg)
-			{
-				Head_Position = RESETED;
-			}
-		}
-		else if (head == Lift_Motor_Msg)
-		{
-			if (body == NOT_RESETED_Msg)
-			{
-				Lift_Position = HIGH;
-			}
-			else if (body == RESETED_Msg)
-			{
-				Lift_Position = LOW;
-			}
-		}
-		else if (head == Pushing_book_Motor_Msg)
-		{
-			if (body == NOT_RESETED_Msg)
-			{
-				Pushing_book_Position = FRONT;
-			}
-			else if (body == RESETED_Msg)
-			{
-				Pushing_book_Position = BACK;
-			}
-		}
-		else if (head == Forward_pressing_board_Motor_Msg)
-		{
-			if (body == NOT_RESETED_Msg)
-			{
-				Forward_pressing_board_Position = FRONT;
-			}
-			else if (body == RESETED_Msg)
-			{
-				Forward_pressing_board_Position = BACK;
-			}
+			head_motor->position = mode;
 		}
 		else if (head == Pressing_board_Motor_Msg)
 		{
-			if (body == NOT_RESETED_Msg)
-			{
-				Pressing_board_Position = LOW;
-			}
-			else if (body == RESETED_Msg)
-			{
-				Pressing_board_Position = HIGH;
-			}
+			pressing_board_motor->position = mode;
 		}
 		else if (head == Rotating_shelf_Motor_Msg)
 		{
-			if (body == NOT_RESETED_Msg)
-			{
-				Rotating_shelf_Position = ROTATED;
-			}
-			else if (body == RESETED_Msg)
-			{
-				Rotating_shelf_Position = RESETED;
-			}
+			rotating_shelf_motor->position = mode;
 		}
 	}
 	else if (type == COMMAND)
 	{
-		if (head == Base_Motor_Msg)
+		float per;
+		if (head == Body_Motor_Msg)
 		{
-			if (body == FORWARD_Msg)
+			if (mode == FORWARD_Msg)
 			{
-				Flip_Base();
+				per = parse_per(body);
+				Forward_motor(body_motor, per);
 			}
-			else if (body == BACKWARD_Msg)
+			else if (mode == BACKWARD_Msg)
 			{
-				Reset_Base();
-			}
-		}
-		else if (head == Body_Motor_Msg)
-		{
-			if (body == FORWARD_Msg)
-			{
-				Stretch_Body();
-			}
-			else if (body == BACKWARD_Msg)
-			{
-				Lower_Body();
+				per = parse_per(body);
+				Backward_motor(body_motor, per);
 			}
 		}
 		else if (head == Head_Motor_Msg)
 		{
-			if (body == FORWARD_Msg)
+			if (mode == FORWARD_Msg)
 			{
-				Rotate_Head();
+				per = parse_per(body);
+				Forward_motor(head_motor, per);
 			}
-			else if (body == BACKWARD_Msg)
+			else if (mode == BACKWARD_Msg)
 			{
-				Reset_Head();
-			}
-		}
-		else if (head == Lift_Motor_Msg)
-		{
-			if (body == FORWARD_Msg)
-			{
-				Lift_book();
-			}
-			else if (body == BACKWARD_Msg)
-			{
-				Lower_lifter();
-			}
-		}
-		else if (head == Pushing_book_Motor_Msg)
-		{
-			if (body == FORWARD_Msg)
-			{
-				Forward_Pushing_book();
-			}
-			else if (body == BACKWARD_Msg)
-			{
-				Backward_Pushing_book();
-			}
-		}
-		else if (head == Forward_pressing_board_Motor_Msg)
-		{
-			if (body == FORWARD_Msg)
-			{
-				Forward_Pressing_board();
-			}
-			else if (body == BACKWARD_Msg)
-			{
-				Backward_Pressing_board();
+				per = parse_per(body);
+				Backward_motor(head_motor, per);
 			}
 		}
 		else if (head == Pressing_board_Motor_Msg)
 		{
-			if (body == FORWARD_Msg)
+			if (mode == FORWARD_Msg)
 			{
-				Lower_Pressing_board();
+				per = parse_per(body);
+				Forward_motor(pressing_board_motor, per);
 			}
-			else if (body == BACKWARD_Msg)
+			else if (mode == BACKWARD_Msg)
 			{
-				Elevate_Pressing_board();
+				per = parse_per(body);
+				Backward_motor(pressing_board_motor, per);
 			}
 		}
 		else if (head == Rotating_shelf_Motor_Msg)
 		{
-			if (body == FORWARD_Msg)
+			if (mode == FORWARD_Msg)
 			{
-				Rotate_shelf();
+				per = parse_per(body);
+				Forward_motor(rotating_shelf_motor, per);
 			}
-			else if (body == BACKWARD_Msg)
+			else if (mode == BACKWARD_Msg)
 			{
-				Reset_shelf();
+				per = parse_per(body);
+				Backward_motor(rotating_shelf_motor, per);
 			}
 		}
-		else if (head == Pump_Msg)
+	}
+}
+
+
+void handle_htim7_queue(void)
+{
+	uint8_t *recv_buf;
+	recv_buf = QueueFront(&htim7_queue);
+	QueuePop(&htim7_queue);
+	type = recv_buf[0];
+	head = recv_buf[1];
+	mode = recv_buf[2];
+	body = recv_buf[3];
+
+	if (type == CHECK)
+	{
+		if (head == Base_Motor_Msg)
 		{
-			if (body == POWERON_Msg)
+			if (mode == POSITION_CHECK)
+			{
+				motor_pos_feedback_str(base_motor);
+				UART_Send(feedback_data);
+			}
+		}
+		else if (head == Lift_Motor_Msg)
+		{
+			if (mode == POSITION_CHECK)
+			{
+				motor_pos_feedback_str(lift_motor);
+				UART_Send(feedback_data);
+			}
+		} 
+		else if (head == Pushing_book_Motor_Msg)
+		{
+			if (mode == POSITION_CHECK)
+			{
+				motor_pos_feedback_str(pushing_book_motor);
+				UART_Send(feedback_data);
+			}
+		} 
+		else if (head == Forward_pressing_board_Motor_Msg)
+		{
+			if (mode == POSITION_CHECK)
+			{
+				motor_pos_feedback_str(forward_pressing_board_motor);
+				UART_Send(feedback_data);
+			}
+		} 
+	}
+    else if (type == RESET)
+	{
+		if (head == Base_Motor_Msg)
+		{
+			base_motor->position = mode;
+		}
+		else if (head == Lift_Motor_Msg)
+		{
+			lift_motor->position = mode;
+		}
+		else if (head == Pushing_book_Motor_Msg)
+		{
+			pushing_book_motor->position = mode;
+		}
+		else if (head == Forward_pressing_board_Motor_Msg)
+		{
+			forward_pressing_board_motor->position = mode;
+		}
+	}
+	else if (type == COMMAND)
+	{
+		float per;
+		if (head == Base_Motor_Msg)
+		{
+			if (mode == FORWARD_Msg)
+			{
+				per = parse_per(body);
+				Forward_motor(base_motor, per);
+			}
+			else if (mode == BACKWARD_Msg)
+			{
+				per = parse_per(body);
+				Backward_motor(base_motor, per);
+			}
+		}
+		else if (head == Lift_Motor_Msg)
+		{
+			if (mode == FORWARD_Msg)
+			{
+				per = parse_per(body);
+				Forward_motor(lift_motor, per);
+			}
+			else if (mode == BACKWARD_Msg)
+			{
+				per = parse_per(body);
+				Backward_motor(lift_motor, per);
+			}
+		}
+		else if (head == Pushing_book_Motor_Msg)
+		{
+			if (mode == FORWARD_Msg)
+			{
+				per = parse_per(body);
+				Forward_motor(pushing_book_motor, per);
+			}
+			else if (mode == BACKWARD_Msg)
+			{
+				per = parse_per(body);
+				Backward_motor(pushing_book_motor, per);
+			}
+		}
+		else if (head == Forward_pressing_board_Motor_Msg)
+		{
+			if (mode == FORWARD_Msg)
+			{
+				per = parse_per(body);
+				Forward_motor(forward_pressing_board_motor, per);
+			}
+			else if (mode == BACKWARD_Msg)
+			{
+				per = parse_per(body);
+				Backward_motor(forward_pressing_board_motor, per);
+			}
+		}
+	}
+}
+
+void handle_extra_queue(void)
+{
+	uint8_t *recv_buf;
+	recv_buf = QueueFront(&extra_queue);
+	QueuePop(&extra_queue);
+	type = recv_buf[0];
+	head = recv_buf[1];
+	mode = recv_buf[2];
+	body = recv_buf[3];
+
+	if (type == COMMAND)
+	{
+		if (head == Pump_Msg)
+		{
+			if (mode == POWERON_Msg)
 			{
 				activate_pump();
 			}
-			else if (body == POWEROFF_Msg)
+			else if (mode == POWEROFF_Msg)
 			{
 				deactivate_pump();
 			}
 		}
 	}
-	else
-	{
-		UART_Send("error message");
-	}
 }
-
-
-

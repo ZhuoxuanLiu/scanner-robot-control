@@ -35,8 +35,8 @@ extern "C" {
 extern UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN Private defines */
-#define USART_REC_LEN  			200
-#define USART_TRA_LEN  			200
+#define USART_REC_LEN  			4
+#define USART_TRA_LEN  			4
 
 extern uint8_t  USART_RX_BUF[USART_REC_LEN];
 extern uint16_t USART_RX_STA;
@@ -45,7 +45,6 @@ extern UART_HandleTypeDef UART1_Handler;
 
 #define RXBUFFERSIZE   1
 extern uint8_t RxBuffer[RXBUFFERSIZE];
-
 /* USER CODE END Private defines */
 
 void MX_USART1_UART_Init(void);

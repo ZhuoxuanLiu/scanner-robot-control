@@ -38,9 +38,7 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-extern uint8_t type;
-extern uint8_t head;
-extern uint8_t body;
+
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
@@ -107,12 +105,20 @@ void Error_Handler(void);
 #define Vacuum_pump_GPIO_Port GPIOE
 /* USER CODE BEGIN Private defines */
 #ifndef CPL
-#define CPL                 1
+#define CPL                 '1'
 #endif
 
 #ifndef NCPL
-#define NCPL                0
+#define NCPL                '0'
 #endif
+
+#define TRUE          '1'
+#define FALSE         '0'
+
+#define NOT_RESETED   '1'
+#define RESETED       '0'
+#define ON            '1'
+#define OFF           '0'
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

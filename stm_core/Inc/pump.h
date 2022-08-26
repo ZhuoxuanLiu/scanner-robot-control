@@ -10,6 +10,8 @@
 
 #include "main.h"
 
+#define Vacuum_pump          '8'
+
 void activate_pump(void);
 void deactivate_pump(void);
 

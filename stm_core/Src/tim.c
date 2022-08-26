@@ -21,8 +21,8 @@
 #include "tim.h"
 
 /* USER CODE BEGIN 0 */
-uint8_t TIM6_IT_count = 0;
-uint8_t TIM7_IT_count = 0;
+uint16_t TIM6_IT_count = 0;
+uint16_t TIM7_IT_count = 0;
 /* USER CODE END 0 */
 
 TIM_HandleTypeDef htim2;
@@ -415,35 +415,6 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
 }
 
 /* USER CODE BEGIN 1 */
-void Set_TIM2_motor_poweroff(void)
-{
-	Body_Power = OFF;
-	Head_Power = OFF;
-	Pressing_board_Power = OFF;
-	Pressing_board_Check_Period = FALSE;
-	Rotating_shelf_Power = OFF;
-}
-
-void Disable_TIM2_check_P(void)
-{
-	Pressing_board_Check_Period = FALSE;
-}
-
-void Set_TIM3_motor_poweroff(void)
-{
-	Base_Power = OFF;
-	Base_Check_Period = FALSE;
-	Lift_Power = OFF;
-	Pushing_book_Power = OFF;
-	Forward_pressing_board_Power = OFF;
-}
-
-void Disable_TIM3_check_P(void)
-{
-    Base_Check_Period = FALSE;
-    Lift_Check_Period = FALSE;
-}
-
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if(htim==(&htim6))
@@ -455,12 +426,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     	}
     	else
     	{
-			HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_ALL);
-			HAL_TIM_Base_Stop_IT(htim);
-			Disable_TIM2_check_P();
-			Set_TIM2_motor_poweroff();
-			UART_Send("htim6 stop");
-			TIM6_IT_count = 0;
+        HAL_TIM_PWM_Stop(&htim2, Current_tim6_motor->channel);
+        HAL_TIM_Base_Stop_IT(htim);
+        if (Current_tim6_motor->check_sensor_period != NULL)
+        {
+          Current_tim6_motor->check_sensor_period = FALSE;
+        }
+        Current_tim6_motor->power = OFF;
+        tim6_result_str(Current_tim6_motor);
+        UART_Send(tim6_result_data);
+        TIM6_IT_count = 0;
     	}
 
     }
@@ -473,12 +448,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     	}
     	else
     	{
-			HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_ALL);
-			HAL_TIM_Base_Stop_IT(htim);
-			Disable_TIM3_check_P();
-			Set_TIM3_motor_poweroff();
-			UART_Send("htim7 stop");
-			TIM7_IT_count = 0;
+        HAL_TIM_PWM_Stop(&htim3, Current_tim7_motor->channel);
+        HAL_TIM_Base_Stop_IT(htim);
+        if (Current_tim7_motor->check_sensor_period != NULL)
+        {
+          Current_tim7_motor->check_sensor_period = FALSE;
+        }
+        Current_tim7_motor->power = OFF;
+        tim7_result_str(Current_tim7_motor);
+        UART_Send(tim7_result_data);
+        TIM7_IT_count = 0;
     	}
 
     }

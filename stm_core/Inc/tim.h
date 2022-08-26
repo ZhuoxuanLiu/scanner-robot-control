@@ -43,8 +43,7 @@ extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim7;
 
 /* USER CODE BEGIN Private defines */
-extern uint8_t TIM6_IT_count;
-extern uint8_t TIM7_IT_count;
+
 
 /* USER CODE END Private defines */
 

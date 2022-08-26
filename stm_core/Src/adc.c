@@ -22,10 +22,10 @@
 
 /* USER CODE BEGIN 0 */
 uint32_t P_SENSOR[4];
-uint8_t P_SENSOR_NUM = 4;
-uint8_t ADC_rank = 0;
-uint8_t ADC_num = 0;
-uint8_t ADC_Sample_num = 200;
+uint16_t P_SENSOR_NUM = 4;
+uint16_t ADC_rank = 0;
+uint16_t ADC_num = 0;
+uint16_t ADC_Sample_num = 200;
 /* USER CODE END 0 */
 
 ADC_HandleTypeDef hadc1;

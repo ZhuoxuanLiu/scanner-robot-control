@@ -23,6 +23,7 @@
 #include "usart.h"
 #include "gpio.h"
 #include "protocol.h"
+#include "queue.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -56,10 +57,7 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint16_t len;
-uint8_t head;
-uint8_t body;
-uint8_t type;
+
 /* USER CODE END 0 */
 
 /**
@@ -103,24 +101,18 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if(USART_RX_STA&0x8000)
+	  if(QueueEmpty(htim6_queue)==FALSE)
 	  {
-		len=USART_RX_STA&0x3fff;
-		if (len != 3)
-		{
-			UART_Send("error message");
-		}
-		else
-		{
-			type = USART_RX_BUF[0];
-			head = USART_RX_BUF[1];
-			body = USART_RX_BUF[2];
-			handle_protocol();
-		}
-
-		USART_RX_STA=0;
+      handle_htim6_queue();
 	  }
-
+	  if(QueueEmpty(htim7_queue)==FALSE)
+	  {
+      handle_htim7_queue();
+	  }
+    if(QueueEmpty(extra_queue)==FALSE)
+	  {
+      handle_extra_queue();
+	  }
 	/* CHECK P_SENSOR VALUE */
 
 	/* CHECK P_SENSOR VALUE */

@@ -11,10 +11,16 @@
 #include "main.h"
 #include "motor.h"
 #include "pump.h"
-
+#include "queue.h"
+// recv
 #define CHECK			'0'
-#define FEEDBACK		'1'
+#define RESET			'1'
 #define COMMAND			'2'
+// send
+#define FEEDBACK		'0'
+#define RESULT		    '1'
+
+#define BAK				'0'
 
 #define Base_Motor_Msg						'0'
 #define Body_Motor_Msg 						'1'
@@ -45,5 +51,17 @@
 #define RESETED_str			"1"
 
 void handle_protocol(void);
+void tim6_result_str(Motor *motor);
+void tim7_result_str(Motor *motor);
+void extra_result_str(uint8_t name, uint8_t stat);
+
+extern uint8_t tim6_result_data[4];
+extern uint8_t tim7_result_data[4];
+extern uint8_t extra_result_data[4];
+extern uint8_t feedback_data[4];
+extern uint8_t type;
+extern uint8_t head;
+extern uint8_t mode;
+extern uint8_t body;
 
 #endif /* INC_PROTOCOL_H_ */

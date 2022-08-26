@@ -19,7 +19,8 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "usart.h"
-
+#include "queue.h"
+#include "motor.h"
 /* USER CODE BEGIN 0 */
 uint8_t USART_RX_BUF[USART_REC_LEN];
 uint8_t RxBuffer[RXBUFFERSIZE];
@@ -56,6 +57,7 @@ void MX_USART1_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USART1_Init 2 */
+  QueueInit(recv_queue);
   HAL_UART_Receive_IT(&huart1, (uint8_t *)RxBuffer, RXBUFFERSIZE);
   /* USER CODE END USART1_Init 2 */
 
@@ -132,7 +134,25 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			if(USART_RX_STA&0x4000)
 			{
 				if(RxBuffer[0]!=0x0a) USART_RX_STA=0;
-				else USART_RX_STA|=0x8000;
+				else 
+        {
+          uint8_t queue_buf[4];
+          if (USART_RX_BUF[1]==Head_motor || USART_RX_BUF[1]==Body_motor || 
+          USART_RX_BUF[1]==Pressing_board_motor || USART_RX_BUF[1]==Rotating_shelf_motor)
+          {
+            QueuePush(htim6_queue, USART_RX_BUF);
+          }
+          else if ((USART_RX_BUF[1]==Base_motor || USART_RX_BUF[1]==Lift_motor || 
+          USART_RX_BUF[1]==Pushing_book_motor || USART_RX_BUF[1]==Forward_pressing_board_motor))
+          {
+            QueuePush(htim7_queue, USART_RX_BUF);
+          }
+          else
+          {
+            QueuePush(extra_queue, USART_RX_BUF);
+          }
+          USART_RX_STA = 0;
+        }
 			}
 			else
 			{
@@ -162,22 +182,12 @@ void UART_FlagClear(UART_HandleTypeDef *huart)
 	__HAL_UART_CLEAR_FLAG(huart, UART_FLAG_ORE);
 }
 
-void UART_Send(char* str)
+void UART_Send(uint8_t *send_data)
 {
-
-	strcpy((char*)USART_TX_BUF, str);
-	while(HAL_UART_Transmit(&huart1, (uint8_t*)USART_TX_BUF, strlen(str), USART_TRA_LEN)!= HAL_OK)
+	while(HAL_UART_Transmit(&huart1, send_data, (uint16_t) sizeof(send_data), HAL_MAX_DELAY)!= HAL_OK)
 	{
 		UART_FlagClear(&huart1);
-		UART_Send_timeout++;
-		if(UART_Send_timeout>HAL_MAX_DELAY)
-		{
-			UART_Send_timeout=0;
-			break;
-		}
 	}
-	memset(USART_TX_BUF, 0, USART_TRA_LEN);
-	UART_Send_timeout=0;
 }
 
 

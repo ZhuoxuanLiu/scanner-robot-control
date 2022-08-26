@@ -4,7 +4,7 @@
 class Protocol:
     # send protocol
     check = '0'
-    feedback = '1'
+    reset = '1'
     command = '2'
     
     base_motor = '0'
@@ -30,14 +30,24 @@ class Protocol:
     off = '0'
     
     # recieve protocol
-    query = '0'
-    feedback = '1'
-    result = '2'
+    feedback = '0'
+    result = '1'
     
     # book on board or not
     off_board = '0'
     on_board = '1'
     
+    # percentage
+    ten = '1'
+    twenty = '2'
+    thirty = '3'
+    forty = '4'
+    fifty = '5'
+    sixty = '6'
+    seventy = '7'
+    ninety = '9'
+    hundred = 'x'
     
+    bak = '0'
 
 

@@ -8,33 +8,137 @@
 
 float step_deg = 1.8;
 
-uint8_t Base_Power = OFF; //初始状态为关机
-uint8_t Base_Position = ROTATED; //初始状态为未复位
-uint8_t Base_Check_Period = TRUE;
+Motor *Current_tim6_motor;
+Motor *Current_tim7_motor;
 
-uint8_t Body_Power = OFF; //初始状态为关机
-uint8_t Body_Position = RESETED; //初始状态为未复位
-uint8_t Body_Check_Period = TRUE;
 
-uint8_t Head_Power = OFF; //初始状态为关机
-uint8_t Head_Position = RESETED; //初始状态为未复位
+Motor *base_motor = {
+	.GPIO_Port = Base_DIR_GPIO_Port,
+    .GPIO_Pin = Base_DIR_Pin,
+    .htim = &htim7,
+    .channel = Base_channel,
+	.deg = 120, 
+	.motor_div = 32, 
+	.rratio = 28, 
+	.pwm_us = 100,
+	.name = Base_motor,
+	.power = OFF,
+	.position = NOT_RESETED,
+	.check_sensor_period = TRUE,
+	.check_sensor_dir = BACKWARD;
+}
 
-uint8_t Lift_Power = OFF; //初始状态为关机
-uint8_t Lift_Position = LOW; //初始状态为未升高
-uint8_t Lift_Check_Period = TRUE;
+Motor *body_motor = {
+	.GPIO_Port = Body_DIR_GPIO_Port,
+    .GPIO_Pin = Body_DIR_Pin,
+    .htim = &htim6,
+    .channel = Body_channel,
+	.deg = 360, 
+	.motor_div = 32, 
+	.rratio = 1, 
+	.pwm_us = 200,
+	.name = Body_motor,
+	.power = OFF,
+	.position = RESETED,
+	.check_sensor_period = NULL,
+	.check_sensor_dir = NULL;
+}
 
-uint8_t Pushing_book_Power = OFF; //初始状态为关机
-uint8_t Pushing_book_Position = BACK; //初始状态为复位
+Motor *head_motor = {
+	.GPIO_Port = Head_DIR_GPIO_Port,
+    .GPIO_Pin = Head_DIR_Pin,
+    .htim = &htim6,
+    .channel = Head_channel,
+	.deg = 20, 
+	.motor_div = 32, 
+	.rratio = 1, 
+	.pwm_us = 200,
+	.name = Head_motor,
+	.power = OFF,
+	.position = RESETED,
+	.check_sensor_period = NULL,
+	.check_sensor_dir = NULL;
+}
 
-uint8_t Forward_pressing_board_Power = OFF; //初始状态为关机
-uint8_t Forward_pressing_board_Position = BACK; //初始状态为未前进
+Motor *lift_motor = {
+	.GPIO_Port = Lift_DIR_GPIO_Port,
+    .GPIO_Pin = Lift_DIR_Pin,
+    .htim = &htim7,
+    .channel = Lift_channel,
+	.deg = 360, 
+	.motor_div = 32, 
+	.rratio = 1, 
+	.pwm_us = 200,
+	.name = Lift_motor,
+	.power = OFF,
+	.position = RESETED,
+	.check_sensor_period = TRUE,
+	.check_sensor_dir = FORWARD;
+}
 
-uint8_t Pressing_board_Power = OFF; //初始状态为关机
-uint8_t Pressing_board_Position = HIGH; //初始状态为未下降
-uint8_t Pressing_board_Check_Period = TRUE;
+Motor *pushing_book_motor = {
+	.GPIO_Port = Pushing_book_DIR_GPIO_Port,
+    .GPIO_Pin = Pushing_book_DIR_Pin,
+    .htim = &htim7,
+    .channel = Pushing_book_channel,
+	.deg = 360, 
+	.motor_div = 32, 
+	.rratio = 1, 
+	.pwm_us = 200,
+	.name = Pushing_book_motor,
+	.power = OFF,
+	.position = RESETED,
+	.check_sensor_period = NULL,
+	.check_sensor_dir = NULL;
+}
 
-uint8_t Rotating_shelf_Power = OFF; //初始状态为关机
-uint8_t Rotating_shelf_Position = RESETED; //初始状态为未复位
+Motor *forward_pressing_board_motor = {
+	.GPIO_Port = Forward_pressing_board_DIR_GPIO_Port,
+    .GPIO_Pin = Forward_pressing_board_DIR_Pin,
+    .htim = &htim7,
+    .channel = Forward_pressing_board_channel,
+	.deg = 360, 
+	.motor_div = 32, 
+	.rratio = 1, 
+	.pwm_us = 200,
+	.name = Forward_pressing_board_motor,
+	.power = OFF,
+	.position = RESETED,
+	.check_sensor_period = NULL,
+	.check_sensor_dir = NULL;
+}
+
+Motor *pressing_board_motor = {
+	.GPIO_Port = Pressing_board_DIR_GPIO_Port,
+    .GPIO_Pin = Pressing_board_DIR_Pin,
+    .htim = &htim6,
+    .channel = Pressing_board_channel,
+	.deg = 360, 
+	.motor_div = 32, 
+	.rratio = 1, 
+	.pwm_us = 200,
+	.name = Pressing_board_motor,
+	.power = OFF,
+	.position = RESETED,
+	.check_sensor_period = TRUE,
+	.check_sensor_dir = FORWARD;
+}
+
+Motor *rotating_shelf_motor = {
+	.GPIO_Port = Rotating_shelf_DIR_GPIO_Port,
+    .GPIO_Pin = Rotating_shelf_DIR_Pin,
+    .htim = &htim6,
+    .channel = Rotating_shelf_channel,
+	.deg = 360, 
+	.motor_div = 32, 
+	.rratio = 28, 
+	.pwm_us = 100,
+	.name = Rotating_shelf_motor,
+	.P=power = OFF,
+	.position = RESETED,
+	.check_sensor_period = NULL,
+	.check_sensor_dir = NULL;
+}
 
 
 void Start_TIM2_Motor(uint16_t deg, uint16_t motor_div, uint16_t rratio, uint32_t pwm_us, uint32_t channel){
@@ -65,267 +169,82 @@ void Stop_TIM3_Motor(void){
 	TIM7_IT_count = 0;
 }
 
-/* Base Motor control function */
 
-void Flip_Base(void){
-	Base_DIR(FORWARD);
-	Start_TIM3_Motor(120, 32, 28, 100, Base_channel);
-    Base_Power = ON;
-    Base_Position = ROTATED;
+void Forward_motor(Motor *motor, float per){
+	SET_Forward_DIR(motor);
+	if (motor->htim == &htim6){
+		Current_tim6_motor = motor;
+		Start_TIM2_Motor((uint16_t) (motor->deg)*per, motor->motor_div, motor->rratio, motor->pwm_us, motor->channel);
+	}
+	else if (motor->htim == &htim7){
+		Current_tim7_motor = motor;
+		Start_TIM3_Motor((uint16_t) (motor->deg)*per, motor->motor_div, motor->rratio, motor->pwm_us, motor->channel);
+	}
+    motor->power = ON;
+	/* CHECK P ONLY IN FORWARD PROCESS */
+	if (motor->check_sensor_dir == FORWARD){
+		motor->check_sensor_period = TRUE;
+		Sensor_current_check = motor->name;
+		while (motor->position == RESETED && motor->check_sensor_period == TRUE)
+		{
+			if (Check_P_cpl == CPL)   // if former check process has already been done
+			{
+				Get_P_sensor_avg();
+			}
+		}
+		motor->check_sensor_period = TRUE;
+	}
+	/* CHECK P ONLY IN FORWARD PROCESS */
+    motor->position = NOT_RESETED;
 }
 
-void Reset_Base(void){
-	Base_DIR(BACKWARD);
-	Start_TIM3_Motor(120, 32, 28, 100, Base_channel);
-    Base_Power = ON;
+void Backward_motor(Motor *motor, float per){
+	SET_Backward_DIR(motor);
+	if (motor->htim == &htim6){
+		Current_tim6_motor = motor;
+		Start_TIM2_Motor((uint16_t) (motor->deg)*per, motor->motor_div, motor->rratio, motor->pwm_us, motor->channel);
+	}
+	else if (motor->htim == &htim7){
+		Current_tim7_motor = motor;
+		Start_TIM3_Motor((uint16_t) (motor->deg)*per, motor->motor_div, motor->rratio, motor->pwm_us, motor->channel);
+	}
+    motor->power = ON;
 	/* CHECK P ONLY IN RESET PROCESS */
-	Base_Check_Period = TRUE;
-	Sensor_current_check = Adsorp_head_sensor;
-	while (Base_Position == ROTATED && Base_Check_Period == TRUE)
-	{
-		if (Check_P_cpl == CPL)   // if former check process has already been done
+	if (motor->check_sensor_dir == BACKWARD){
+		motor->check_sensor_period = TRUE;
+		Sensor_current_check = motor->name;
+		while (motor->position == NOT_RESETED && motor->check_sensor_period == TRUE)
 		{
-			Get_P_sensor_avg();
+			if (Check_P_cpl == CPL)   // if former check process has already been done
+			{
+				Get_P_sensor_avg();
+			}
 		}
+		motor->check_sensor_period = TRUE;
 	}
-	Base_Check_Period = TRUE;
 	/* CHECK P ONLY IN RESET PROCESS */
-	Base_Position = RESETED;
+    motor->position = RESETED;
 }
 
-void Stop_Base(void){
-	if (Base_Power == ON)
+void Stop_motor(Motor *motor){
+	if (motor->power == ON)
 	{
-		Stop_TIM3_Motor();
-	    Base_Power = OFF;
-	    Base_Check_Period = FALSE;
-		UART_Send("Base Motor stop");
-	}
-}
-
-/* Base Motor control function */
-
-
-/* Body Motor control function */
-
-void Stretch_Body(void){
-	Body_DIR(FORWARD);
-	Start_TIM2_Motor(360, 32, 1, 200, Body_channel);
-	Body_Power = ON;
-	Body_Position = STRETCHED;
-}
-
-void Lower_Body(void){
-	Body_DIR(BACKWARD);
-	Start_TIM2_Motor(360, 32, 1, 200, Body_channel);
-	Body_Power = ON;
-	Body_Position = RESETED;
-}
-
-void Stop_Body(void){
-	if (Body_Power == ON)
-	{
-		Stop_TIM2_Motor();
-		Body_Power = OFF;
-		UART_Send("Body Motor stop");
-	}
-}
-
-/* Body Motor control function */
-
-
-/* Head Motor control function */
-
-void Rotate_Head(void){
-	Head_DIR(FORWARD);
-	Start_TIM2_Motor(10, 32, 1, 1000, Head_channel);
-	Head_Power = ON;
-	Head_Position = ROTATED;
-}
-
-void Reset_Head(void){
-	Head_DIR(BACKWARD);
-	Start_TIM2_Motor(10, 32, 1, 1000, Head_channel);
-	Head_Power = ON;
-	Head_Position = RESETED;
-}
-
-void Stop_Head(void){
-	if (Head_Power == ON)
-	{
-		Stop_TIM2_Motor();
-		Head_Power = OFF;
-		UART_Send("Head Motor stop");
-	}
-}
-
-/* Head Motor control function */
-
-
-/* Lift Motor control function */
-
-void Lift_book(void){
-	Lift_DIR(FORWARD);
-	Start_TIM3_Motor(720, 32, 1, 100, Lift_channel);
-	Lift_Power = ON;
-
-	/* CHECK P ONLY IN LIFT PROCESS */
-	Lift_Check_Period = TRUE;
-	Sensor_current_check = Lift_sensor;
-	while (Lift_Position == LOW && Lift_Check_Period == TRUE)
-	{
-		if (Check_P_cpl == CPL)
-		{
-			Get_P_sensor_avg();
+		if (motor->htim == &htim6){
+			Stop_TIM2_Motor();
+			tim6_result_str(motor);
+			UART_Send(tim6_result_data);
 		}
-	}
-	Lift_Check_Period = TRUE;
-	/* CHECK P ONLY IN LIFT PROCESS */
-	Lift_Position = HIGH;
-}
-
-void Lower_lifter(void){
-	Lift_DIR(BACKWARD);
-	Start_TIM3_Motor(720, 32, 1, 100, Lift_channel);
-	Lift_Power = ON;
-	Lift_Position = LOW;
-}
-
-void Stop_Lift(void){
-	if (Lift_Power == ON)
-	{
-		Stop_TIM3_Motor();
-		Lift_Power = OFF;
-		UART_Send("Lift Motor stop");
-	}
-}
-
-/* Lift Motor control function */
-
-
-/* Pushing book Motor control function */
-
-void Forward_Pushing_book(void){
-	Pushing_book_DIR(FORWARD);
-	Start_TIM3_Motor(720, 32, 1, 100, Pushing_book_channel);
-	Pushing_book_Power = ON;
-	Pushing_book_Position = FRONT;
-}
-
-void Backward_Pushing_book(void){
-	Pushing_book_DIR(BACKWARD);
-	Start_TIM3_Motor(720, 32, 1, 100, Pushing_book_channel);
-	Pushing_book_Power = ON;
-	Pushing_book_Position = BACK;
-}
-
-void Stop_Pushing_book(void){
-	if (Pushing_book_Power == ON)
-	{
-		Stop_TIM3_Motor();
-		Pushing_book_Power = OFF;
-		UART_Send("Pushing book Motor stop");
-	}
-}
-
-/* Pushing book Motor control function */
-
-
-/* Pressing board Motor control function */
-
-void Elevate_Pressing_board(void){
-	Pressing_board_DIR(FORWARD);
-	Start_TIM2_Motor(720, 32, 1, 100, Pressing_board_channel);
-	Pressing_board_Power = ON;
-	Pressing_board_Position = HIGH;
-}
-
-void Lower_Pressing_board(void){
-	Pressing_board_DIR(BACKWARD);
-	Start_TIM2_Motor(720, 32, 1, 100, Pressing_board_channel);
-	Pressing_board_Power = ON;
-
-	/* CHECK P ONLY IN Pressing board PROCESS */
-	Pressing_board_Check_Period = TRUE;
-	Sensor_current_check = Pressing_board_sensor;
-	while (Pressing_board_Position == HIGH && Pressing_board_Check_Period == TRUE)
-	{
-		if (Check_P_cpl == CPL)
-		{
-			Get_P_sensor_avg();
+		else if (motor->htim == &htim7){
+			Stop_TIM3_Motor();
+			tim7_result_str(motor);
+			UART_Send(tim7_result_data);
 		}
-	}
-	Pressing_board_Check_Period = TRUE;
-	/* CHECK P ONLY IN Pressing board PROCESS */
-	Pressing_board_Position = LOW;
-}
-
-void Stop_Pressing_board(void){
-	if (Pressing_board_Power == ON)
-	{
-		Stop_TIM2_Motor();
-		Pressing_board_Power = OFF;
-		UART_Send("Pressing board Motor stop");
+	    motor->power = OFF;
+	    motor->check_sensor_period = FALSE;
 	}
 }
 
-/* Pressing board Motor control function */
 
-
-/* Forward Pressing board Motor control function */
-
-void Forward_Pressing_board(void){
-	Forward_pressing_board_DIR(FORWARD);
-	Start_TIM3_Motor(720, 32, 1, 100, Forward_pressing_board_channel);
-	Forward_pressing_board_Power = ON;
-	Forward_pressing_board_Position = FRONT;
-}
-
-void Backward_Pressing_board(void){
-	Forward_pressing_board_DIR(BACKWARD);
-	Start_TIM3_Motor(720, 32, 1, 100, Forward_pressing_board_channel);
-	Forward_pressing_board_Power = ON;
-	Forward_pressing_board_Position = BACK;
-}
-
-void Stop_Forward_Pressing_board(void){
-	if (Forward_pressing_board_Power == ON)
-	{
-		Stop_TIM3_Motor();
-		Forward_pressing_board_Power = OFF;
-		UART_Send("Forward Pressing board Motor stop");
-	}
-}
-
-/* Forward Pressing board Motor control function */
-
-
-/* Rotating shelf Motor control function */
-
-void Rotate_shelf(void){
-	Rotating_shelf_DIR(FORWARD);
-	Start_TIM2_Motor(720, 32, 1, 100, Rotating_shelf_channel);
-	Rotating_shelf_Power = ON;
-	Rotating_shelf_Position = ROTATED;
-}
-
-void Reset_shelf(void){
-	Rotating_shelf_DIR(BACKWARD);
-	Start_TIM2_Motor(720, 32, 1, 100, Rotating_shelf_channel);
-	Rotating_shelf_Power = ON;
-	Rotating_shelf_Position = RESETED;
-}
-
-void Stop_Rotating_shelf(void){
-	if (Rotating_shelf_Power == ON)
-	{
-		Stop_TIM2_Motor();
-		Rotating_shelf_Power = OFF;
-		UART_Send("Rotating shelf Motor stop");
-	}
-}
-
-/* Rotating shelf Motor control function */
 
 
 

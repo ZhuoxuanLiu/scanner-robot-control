@@ -22,7 +22,7 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN 0 */
-uint8_t P_SENSOR0_EXIT_Count = 0;
+
 /* USER CODE END 0 */
 
 /*----------------------------------------------------------------------------*/

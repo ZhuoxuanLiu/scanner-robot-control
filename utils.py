@@ -84,6 +84,16 @@ class SerialControl:
         Protocol.rotating_shelf_motor: 'rotating shelf motor',
     }
     
+    logic_map = {
+        Protocol.forward: Protocol.not_reseted,
+        Protocol.backward: Protocol.not_reseted,
+    }
+    
+    direction_map = {
+        Protocol.forward: 'forward',
+        Protocol.backward: 'backward',
+    }
+    
     def __init__(self) -> None:
         self.sys_state = SysStat()
         self.com = SerialConnect()
@@ -112,6 +122,7 @@ class SerialControl:
             head, body = data[1], data[2]
             self.sys_state.update_position(head, body)
         except Exception as e:
+            print('motor command recv timeout')
             self.sys_state.params['malfunction'] = True
             
     def _recv_pump_command(self, power, timeout):
@@ -120,72 +131,79 @@ class SerialControl:
             body = data[2]
             if power == Protocol.on:
                 if body != Protocol.on:
-                    raise Exception('error response')
+                    raise Exception('pump command recv error response')
                 self.sys_state.update_power(Protocol.vacuum_pump, Protocol.on)
             if power == Protocol.off:
                 if body != Protocol.off:
-                    raise Exception('error response')
+                    raise Exception('pump command recv error response')
                 self.sys_state.update_power(Protocol.vacuum_pump, Protocol.off)
         except Exception as e:
+            print(e)
             self.sys_state.params['malfunction'] = True
             
-    def _recv_motor_check(self, motor, timeout, mode):
+    def _recv_motor_check(self, motor, timeout):
         try:
             data = self.check_feedback_queue[motor].get(timeout=timeout)
-            head, body = data[1], data[2]
-            if mode == Protocol.position:
-                self.sys_state.update_position(head, body)
-            if mode == Protocol.power:
-                self.sys_state.update_power(head, body)
+            head, _, body = data[1], data[2], data[3]
+            if body != self.sys_state.get_position(head):
+                raise Exception('state of stm32 doesn\'t match with system state')
+            self.sys_state.update_position(head, body)
         except Exception as e:
+            print(e)
             self.sys_state.params['malfunction'] = True
     
-    def motor_command(self, motor, direction, timeout):
+    def motor_command(self, motor, direction, timeout, per=Protocol.hundred):
         if direction == Protocol.forward or direction == Protocol.backward:
-            self.com.send(Protocol.command + motor + direction)
+            self.com.send(Protocol.command + motor + direction + per)
             self._recv_motor_command(motor, timeout)
         else:
             pass
         
-    def motor_command_multi(self, motor: tuple, direction: tuple, timeout):
-        for m, d in zip(motor, direction):
-            if d == Protocol.forward or d == Protocol.backward:
-                self.com.send(Protocol.command + m + d)
-            else:
-                pass
-        for m in motor:
-            self._recv_motor_command(m, timeout)
+    def motor_command_multi(self, motor: tuple, direction: tuple, timeout, per: tuple):
+        try:
+            for m, d, p in zip(motor, direction, per):
+                if d == Protocol.forward or d == Protocol.backward:
+                    self.com.send(Protocol.command + m + d + p)
+                else:
+                    pass
+            for m in motor:
+                self._recv_motor_command(m, timeout)
+                if self.sys_state.get_position(m) != self.logic_map[d]:
+                    raise Exception(self.motor_map[m] + ' can not ' + self.direction_map[d])
+        except Exception as e:
+            print(e)
+            self.sc.state.params['malfunction'] = True  
             
     def motor_command_reset_all(self, timeout, exclude: tuple=None):
-        for m in self.motor_list:
-            if m not in exclude:
-                self.com.send(Protocol.command + m + Protocol.backward)
-        for m in self.motor_list:
-            if m not in exclude:
-                self._recv_motor_command(m, timeout)
+        try:
+            for m in self.motor_list:
+                if m not in exclude and self.sys_state.get_position(m) == Protocol.not_reseted:
+                    self.com.send(Protocol.command + m + Protocol.backward + Protocol.hundred)
+            for m in self.motor_list:
+                if m not in exclude:
+                    self._recv_motor_command(m, timeout)
+                    if self.sys_state.get_position(m) != Protocol.reseted:
+                        raise Exception(self.motor_map[m] + ' can not reset')
+        except Exception as e:
+            print(e)
+            self.sc.state.params['malfunction'] = True  
         
     def pump_command(self, power, timeout):
         if power == Protocol.on or power == Protocol.off:
-            self.com.send(Protocol.command + Protocol.vacuum_pump + power)
+            self.com.send(Protocol.command + Protocol.vacuum_pump + power + Protocol.bak)
             self._recv_pump_command(power, timeout)
         else:
             pass
         
-    def motor_check(self, motor, timeout, mode=Protocol.position):
-        if mode == Protocol.position or mode == Protocol.power:
-            self.com.send(Protocol.check + motor + mode)
-            self._recv_motor_check(motor, timeout, mode)
-        else:
-            pass
+    def motor_check(self, motor, timeout):
+        self.com.send(Protocol.check + motor + Protocol.position + Protocol.bak)
+        self._recv_motor_check(motor, timeout)
         
-    def motor_check_all(self, timeout, mode=Protocol.position):
+    def motor_check_all(self, timeout):
         for m in self.motor_list:
-            if mode == Protocol.position or mode == Protocol.power:
-                self.com.send(Protocol.check + m + mode)
-            else:
-                pass
+            self.com.send(Protocol.check + m + Protocol.position + Protocol.bak)
         for m in self.motor_list:
-            self._recv_motor_check(m, timeout, mode)
+            self._recv_motor_check(m, timeout)
         
     def serial_handler(self):
         while True:
@@ -215,6 +233,7 @@ class Engine:
     
     def initial_check(self):
         assert self.sc.state.get_power(Protocol.vacuum_pump) == Protocol.off
+        self.sc.motor_check_all(timeout=5)
                 
     
     def activate_vacuum_pump(self, timeout=3):
@@ -230,9 +249,22 @@ class Engine:
             try:
                 self.sc.motor_command(motor, Protocol.forward, timeout)
                 if self.sc.state.get_position(motor) != Protocol.not_reseted:
-                    raise Exception(self.motor_map[motor] + ' can not rotate')
+                    raise Exception(self.sc.motor_map[motor] + ' can not rotate')
             except Exception as e:
+                print(e)
                 self.sc.state.params['malfunction'] = True  
+
+
+    def motor_rotate_multi(self, motor: tuple, timeout=10):
+        rotate_m = []
+        rotate_d = []
+        rotate_p = []
+        for m in motor:
+            if self.sc.state.get_position(m) == Protocol.reseted:
+                rotate_m.append(m)
+                rotate_d.append(Protocol.forward)
+                rotate_p.append(Protocol.hundred)
+        self.sc.motor_command_multi(tuple(rotate_m), tuple(rotate_d), timeout, tuple(rotate_p))
                 
                 
     def motor_reset(self, motor, timeout=10):
@@ -240,14 +272,16 @@ class Engine:
             try:
                 self.sc.motor_command(motor, Protocol.backward, timeout)
                 if self.sc.state.get_position(motor) != Protocol.reseted:
-                    raise Exception(self.motor_map[motor] + ' can not reset')
+                    raise Exception(self.sc.motor_map[motor] + ' can not reset')
             except Exception as e:
+                print(e)
                 self.sc.state.params['malfunction'] = True  
-    
                 
+      
     def move(self):
         self.motor_reset(Protocol.base_motor)
         self.activate_vacuum_pump()
+        # self.motor_rotate_multi((Protocol.head_motor, Protocol.base_motor))
         self.motor_rotate(Protocol.head_motor)
         self.motor_reset(Protocol.base_motor)
         self.motor_rotate(Protocol.forward_pressing_board_motor)
