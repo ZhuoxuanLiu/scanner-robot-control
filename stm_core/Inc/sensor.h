@@ -8,10 +8,7 @@
 #ifndef INC_SENSOR_H_
 #define INC_SENSOR_H_
 
-#include "adc.h"
-#include "stdlib.h"
-#include "usart.h"
-#include "motor.h"
+#include "main.h"
 
 #define CHANNEL_4_VAL       0
 #define CHANNEL_5_VAL       1
@@ -30,9 +27,9 @@
 #define PRESSING_BOARD_P_Threshold   	600
 #define LIFT_P_Threshold   				600
 
-#define Adsorp_head_sensor         				1
-#define Pressing_board_sensor            		2
-#define Lift_sensor    							3
+#define Adsorp_head_sensor         				'1'
+#define Pressing_board_sensor            		'2'
+#define Lift_sensor    							'3'
 
 extern uint8_t Sensor_current_check;
 extern uint8_t Check_P_cpl;

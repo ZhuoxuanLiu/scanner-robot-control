@@ -51,7 +51,7 @@ void MX_USART1_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 void UART_FlagClear(UART_HandleTypeDef *huart);
-void UART_Send(char* str);
+void UART_Send(uint8_t *send_data);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

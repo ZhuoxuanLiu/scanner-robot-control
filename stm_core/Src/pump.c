@@ -6,6 +6,8 @@
  */
 
 #include "pump.h"
+#include "protocol.h"
+#include "usart.h"
 
 void activate_pump(void)
 {

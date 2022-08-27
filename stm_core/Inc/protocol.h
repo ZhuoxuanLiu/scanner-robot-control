@@ -7,18 +7,15 @@
 
 #ifndef INC_PROTOCOL_H_
 #define INC_PROTOCOL_H_
-
-#include "main.h"
 #include "motor.h"
-#include "pump.h"
-#include "queue.h"
 // recv
 #define CHECK			'0'
 #define RESET			'1'
 #define COMMAND			'2'
 // send
 #define FEEDBACK		'0'
-#define RESULT		    '1'
+#define ANSWER		    '1'
+#define RESULT		    '2'
 
 #define BAK				'0'
 
@@ -35,30 +32,25 @@
 #define POSITION_CHECK			'0'
 #define POWER_CHECK				'1'
 
-#define NOT_RESETED_Msg			'0'
-#define RESETED_Msg				'1'
-
 #define FORWARD_Msg			'1'
 #define BACKWARD_Msg		'0'
 
 #define POWERON_Msg			'1'
 #define POWEROFF_Msg		'0'
 
-#define POWER_OFF_str		"0"
-#define POWER_ON_str		"1"
 
-#define NOT_RESETED_str		"0"
-#define RESETED_str			"1"
-
-void handle_protocol(void);
 void tim6_result_str(Motor *motor);
 void tim7_result_str(Motor *motor);
 void extra_result_str(uint8_t name, uint8_t stat);
+void handle_htim6_queue(void);
+void handle_htim7_queue(void);
+void handle_extra_queue(void);
 
 extern uint8_t tim6_result_data[4];
 extern uint8_t tim7_result_data[4];
 extern uint8_t extra_result_data[4];
 extern uint8_t feedback_data[4];
+extern uint8_t answer_data[4];
 extern uint8_t type;
 extern uint8_t head;
 extern uint8_t mode;

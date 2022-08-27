@@ -31,7 +31,8 @@ class Protocol:
     
     # recieve protocol
     feedback = '0'
-    result = '1'
+    answer = '1'
+    result = '2'
     
     # book on board or not
     off_board = '0'

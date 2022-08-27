@@ -14,19 +14,12 @@ Queue extra_queue;
 
 void QueueInit(Queue* pq)
 {
-	assert(pq);
 	pq->head = pq->tail = NULL;
 }
 
 void QueuePush(Queue* pq, QDataType x)
 {
-	assert(pq);
 	QNode* newnode = (QNode*)malloc(sizeof(QNode));
-	if (newnode == NULL)
-	{
-		printf("malloc fail\n");
-		exit(-1);
-	}
     for (int i=0; i<4; i++)
     {
         newnode->data[i] = x[i];
@@ -46,9 +39,6 @@ void QueuePush(Queue* pq, QDataType x)
 
 void QueuePop(Queue* pq)
 {
-	assert(pq);
-	assert(pq->head);
-
 	// 1、一个
 	// 2、多个
 	if (pq->head->next == NULL)
@@ -67,23 +57,16 @@ void QueuePop(Queue* pq)
 
 QDataType QueueFront(Queue* pq)
 {
-	assert(pq);
-	assert(pq->head);
-
 	return pq->head->data;
 }
 
 QDataType QueueBack(Queue* pq)
 {
-	assert(pq);
-	assert(pq->head);
-
 	return pq->tail->data;
 }
 
-QDataType QueueEmpty(Queue* pq)
+uint16_t QueueEmpty(Queue* pq)
 {
-	assert(pq);
 	if (pq->head == NULL)
 	{
 		return 1;
@@ -97,8 +80,6 @@ QDataType QueueEmpty(Queue* pq)
 
 void QueueDestory(Queue* pq)
 {
-	assert(pq);
-
 	QNode* cur = pq->head;
 	while (cur)
 	{

@@ -9,8 +9,9 @@
 #define INC_QUEUE_H_
 
 #include "main.h"
+#include "stdlib.h"
 
-typedef uint8_t QDataType[4];
+typedef uint8_t *QDataType;
 
 typedef struct QueueNode
 {
@@ -34,7 +35,7 @@ QDataType QueueFront(Queue* pq);
 
 QDataType QueueBack(Queue* pq);
 
-QDataType QueueEmpty(Queue* pq);
+uint16_t QueueEmpty(Queue* pq);
 
 void QueueDestory(Queue* pq);
 

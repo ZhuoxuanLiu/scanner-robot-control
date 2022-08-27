@@ -31,9 +31,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "delay.h"
-#include <string.h>
-#include "protocol.h"
+
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -105,20 +103,22 @@ void Error_Handler(void);
 #define Vacuum_pump_GPIO_Port GPIOE
 /* USER CODE BEGIN Private defines */
 #ifndef CPL
-#define CPL                 '1'
+#define CPL             '1'
 #endif
 
 #ifndef NCPL
-#define NCPL                '0'
+#define NCPL            '0'
 #endif
 
-#define TRUE          '1'
-#define FALSE         '0'
+#define TRUE          	'1'
+#define FALSE         	'0'
 
-#define NOT_RESETED   '1'
-#define RESETED       '0'
-#define ON            '1'
-#define OFF           '0'
+#define NOT_RESETED   	'1'
+#define RESETED       	'0'
+#define ON            	'1'
+#define OFF           	'0'
+
+#define NONE			      'n'
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

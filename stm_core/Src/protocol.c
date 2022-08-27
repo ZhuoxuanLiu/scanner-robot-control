@@ -1,10 +1,12 @@
 #include "protocol.h"
-
+#include "queue.h"
+#include "pump.h"
 
 uint8_t tim6_result_data[4];
 uint8_t tim7_result_data[4];
 uint8_t extra_result_data[4];
 uint8_t feedback_data[4];
+uint8_t answer_data[4];
 uint8_t type;
 uint8_t head;
 uint8_t mode;
@@ -12,7 +14,6 @@ uint8_t body;
 
 void tim6_result_str(Motor *motor)
 {
-	uint8_t data[4];
 	tim6_result_data[0] = RESULT;
 	tim6_result_data[1] = motor->name;
 	tim6_result_data[2] = motor->position;
@@ -39,8 +40,16 @@ void motor_pos_feedback_str(Motor *motor)
 {
 	feedback_data[0] = FEEDBACK;
 	feedback_data[1] = motor->name;
-	feedback_data[2] = motor->position;
-	feedback_data[3] = BAK;
+	feedback_data[2] = POSITION_CHECK;
+	feedback_data[3] = motor->position;
+}
+
+void motor_pos_answer_str(Motor *motor)
+{
+	answer_data[0] = ANSWER;
+	answer_data[1] = motor->name;
+	answer_data[2] = motor->position;
+	answer_data[3] = BAK;
 }
 
 float parse_per(uint8_t data)
@@ -94,9 +103,7 @@ float parse_per(uint8_t data)
 	}
 	return per;
 }
-{
-	return motor->position;
-}  
+
 
 void handle_htim6_queue(void)
 {
@@ -149,18 +156,26 @@ void handle_htim6_queue(void)
 		if (head == Body_Motor_Msg)
 		{
 			body_motor->position = mode;
+			motor_pos_answer_str(body_motor);
+			UART_Send(answer_data);
 		}
 		else if (head == Head_Motor_Msg)
 		{
 			head_motor->position = mode;
+			motor_pos_answer_str(head_motor);
+			UART_Send(answer_data);
 		}
 		else if (head == Pressing_board_Motor_Msg)
 		{
 			pressing_board_motor->position = mode;
+			motor_pos_answer_str(pressing_board_motor);
+			UART_Send(answer_data);
 		}
 		else if (head == Rotating_shelf_Motor_Msg)
 		{
 			rotating_shelf_motor->position = mode;
+			motor_pos_answer_str(rotating_shelf_motor);
+			UART_Send(answer_data);
 		}
 	}
 	else if (type == COMMAND)
@@ -272,18 +287,26 @@ void handle_htim7_queue(void)
 		if (head == Base_Motor_Msg)
 		{
 			base_motor->position = mode;
+			motor_pos_answer_str(base_motor);
+			UART_Send(answer_data);
 		}
 		else if (head == Lift_Motor_Msg)
 		{
 			lift_motor->position = mode;
+			motor_pos_answer_str(base_motor);
+			UART_Send(answer_data);
 		}
 		else if (head == Pushing_book_Motor_Msg)
 		{
 			pushing_book_motor->position = mode;
+			motor_pos_answer_str(pushing_book_motor);
+			UART_Send(answer_data);
 		}
 		else if (head == Forward_pressing_board_Motor_Msg)
 		{
 			forward_pressing_board_motor->position = mode;
+			motor_pos_answer_str(forward_pressing_board_motor);
+			UART_Send(answer_data);
 		}
 	}
 	else if (type == COMMAND)

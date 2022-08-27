@@ -5,30 +5,34 @@
  *      Author: a3352
  */
 #include "motor.h"
+#include "tim.h"
+#include "usart.h"
+#include "protocol.h"
 
 float step_deg = 1.8;
 
 Motor *Current_tim6_motor;
 Motor *Current_tim7_motor;
+uint8_t TIM6_stat;
+uint8_t TIM7_stat;
 
-
-Motor *base_motor = {
+Motor *base_motor = &(Motor){
 	.GPIO_Port = Base_DIR_GPIO_Port,
     .GPIO_Pin = Base_DIR_Pin,
     .htim = &htim7,
     .channel = Base_channel,
-	.deg = 120, 
-	.motor_div = 32, 
-	.rratio = 28, 
+	.deg = 120,
+	.motor_div = 32,
+	.rratio = 28,
 	.pwm_us = 100,
 	.name = Base_motor,
 	.power = OFF,
 	.position = NOT_RESETED,
 	.check_sensor_period = TRUE,
-	.check_sensor_dir = BACKWARD;
-}
+	.check_sensor_dir = BACKWARD
+};
 
-Motor *body_motor = {
+Motor *body_motor = &(Motor){
 	.GPIO_Port = Body_DIR_GPIO_Port,
     .GPIO_Pin = Body_DIR_Pin,
     .htim = &htim6,
@@ -40,11 +44,11 @@ Motor *body_motor = {
 	.name = Body_motor,
 	.power = OFF,
 	.position = RESETED,
-	.check_sensor_period = NULL,
-	.check_sensor_dir = NULL;
-}
+	.check_sensor_period = NONE,
+	.check_sensor_dir = NONE
+};
 
-Motor *head_motor = {
+Motor *head_motor = &(Motor){
 	.GPIO_Port = Head_DIR_GPIO_Port,
     .GPIO_Pin = Head_DIR_Pin,
     .htim = &htim6,
@@ -56,11 +60,11 @@ Motor *head_motor = {
 	.name = Head_motor,
 	.power = OFF,
 	.position = RESETED,
-	.check_sensor_period = NULL,
-	.check_sensor_dir = NULL;
-}
+	.check_sensor_period = NONE,
+	.check_sensor_dir = NONE
+};
 
-Motor *lift_motor = {
+Motor *lift_motor = &(Motor){
 	.GPIO_Port = Lift_DIR_GPIO_Port,
     .GPIO_Pin = Lift_DIR_Pin,
     .htim = &htim7,
@@ -73,10 +77,10 @@ Motor *lift_motor = {
 	.power = OFF,
 	.position = RESETED,
 	.check_sensor_period = TRUE,
-	.check_sensor_dir = FORWARD;
-}
+	.check_sensor_dir = FORWARD
+};
 
-Motor *pushing_book_motor = {
+Motor *pushing_book_motor = &(Motor){
 	.GPIO_Port = Pushing_book_DIR_GPIO_Port,
     .GPIO_Pin = Pushing_book_DIR_Pin,
     .htim = &htim7,
@@ -88,11 +92,11 @@ Motor *pushing_book_motor = {
 	.name = Pushing_book_motor,
 	.power = OFF,
 	.position = RESETED,
-	.check_sensor_period = NULL,
-	.check_sensor_dir = NULL;
-}
+	.check_sensor_period = NONE,
+	.check_sensor_dir = NONE
+};
 
-Motor *forward_pressing_board_motor = {
+Motor *forward_pressing_board_motor = &(Motor){
 	.GPIO_Port = Forward_pressing_board_DIR_GPIO_Port,
     .GPIO_Pin = Forward_pressing_board_DIR_Pin,
     .htim = &htim7,
@@ -104,11 +108,11 @@ Motor *forward_pressing_board_motor = {
 	.name = Forward_pressing_board_motor,
 	.power = OFF,
 	.position = RESETED,
-	.check_sensor_period = NULL,
-	.check_sensor_dir = NULL;
-}
+	.check_sensor_period = NONE,
+	.check_sensor_dir = NONE
+};
 
-Motor *pressing_board_motor = {
+Motor *pressing_board_motor = &(Motor){
 	.GPIO_Port = Pressing_board_DIR_GPIO_Port,
     .GPIO_Pin = Pressing_board_DIR_Pin,
     .htim = &htim6,
@@ -121,10 +125,10 @@ Motor *pressing_board_motor = {
 	.power = OFF,
 	.position = RESETED,
 	.check_sensor_period = TRUE,
-	.check_sensor_dir = FORWARD;
-}
+	.check_sensor_dir = FORWARD
+};
 
-Motor *rotating_shelf_motor = {
+Motor *rotating_shelf_motor = &(Motor){
 	.GPIO_Port = Rotating_shelf_DIR_GPIO_Port,
     .GPIO_Pin = Rotating_shelf_DIR_Pin,
     .htim = &htim6,
@@ -134,11 +138,11 @@ Motor *rotating_shelf_motor = {
 	.rratio = 28, 
 	.pwm_us = 100,
 	.name = Rotating_shelf_motor,
-	.P=power = OFF,
+	.power = OFF,
 	.position = RESETED,
-	.check_sensor_period = NULL,
-	.check_sensor_dir = NULL;
-}
+	.check_sensor_period = NONE,
+	.check_sensor_dir = NONE
+};
 
 
 void Start_TIM2_Motor(uint16_t deg, uint16_t motor_div, uint16_t rratio, uint32_t pwm_us, uint32_t channel){
@@ -173,10 +177,12 @@ void Stop_TIM3_Motor(void){
 void Forward_motor(Motor *motor, float per){
 	SET_Forward_DIR(motor);
 	if (motor->htim == &htim6){
+		TIM6_stat = ON;
 		Current_tim6_motor = motor;
 		Start_TIM2_Motor((uint16_t) (motor->deg)*per, motor->motor_div, motor->rratio, motor->pwm_us, motor->channel);
 	}
 	else if (motor->htim == &htim7){
+		TIM7_stat = ON;
 		Current_tim7_motor = motor;
 		Start_TIM3_Motor((uint16_t) (motor->deg)*per, motor->motor_div, motor->rratio, motor->pwm_us, motor->channel);
 	}
@@ -201,10 +207,12 @@ void Forward_motor(Motor *motor, float per){
 void Backward_motor(Motor *motor, float per){
 	SET_Backward_DIR(motor);
 	if (motor->htim == &htim6){
+		TIM6_stat = ON;
 		Current_tim6_motor = motor;
 		Start_TIM2_Motor((uint16_t) (motor->deg)*per, motor->motor_div, motor->rratio, motor->pwm_us, motor->channel);
 	}
 	else if (motor->htim == &htim7){
+		TIM7_stat = ON;
 		Current_tim7_motor = motor;
 		Start_TIM3_Motor((uint16_t) (motor->deg)*per, motor->motor_div, motor->rratio, motor->pwm_us, motor->channel);
 	}
@@ -231,11 +239,13 @@ void Stop_motor(Motor *motor){
 	{
 		if (motor->htim == &htim6){
 			Stop_TIM2_Motor();
+			TIM6_stat = OFF;
 			tim6_result_str(motor);
 			UART_Send(tim6_result_data);
 		}
 		else if (motor->htim == &htim7){
 			Stop_TIM3_Motor();
+			TIM7_stat = OFF;
 			tim7_result_str(motor);
 			UART_Send(tim7_result_data);
 		}

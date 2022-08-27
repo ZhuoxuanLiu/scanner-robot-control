@@ -29,18 +29,8 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-#include "motor.h"
-#include "usart.h"
-#include "gpio.h"
+
 /* USER CODE END Includes */
-
-extern TIM_HandleTypeDef htim2;
-
-extern TIM_HandleTypeDef htim3;
-
-extern TIM_HandleTypeDef htim6;
-
-extern TIM_HandleTypeDef htim7;
 
 /* USER CODE BEGIN Private defines */
 
@@ -55,7 +45,16 @@ void MX_TIM7_Init(uint32_t pulse_num, uint32_t pwm_period);
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
 /* USER CODE BEGIN Prototypes */
+extern TIM_HandleTypeDef htim2;
 
+extern TIM_HandleTypeDef htim3;
+
+extern TIM_HandleTypeDef htim6;
+
+extern TIM_HandleTypeDef htim7;
+
+extern uint16_t TIM6_IT_count;
+extern uint16_t TIM7_IT_count;
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

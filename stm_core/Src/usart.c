@@ -57,7 +57,9 @@ void MX_USART1_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USART1_Init 2 */
-  QueueInit(recv_queue);
+  QueueInit(&htim6_queue);
+  QueueInit(&htim7_queue);
+  QueueInit(&extra_queue);
   HAL_UART_Receive_IT(&huart1, (uint8_t *)RxBuffer, RXBUFFERSIZE);
   /* USER CODE END USART1_Init 2 */
 
@@ -136,20 +138,19 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 				if(RxBuffer[0]!=0x0a) USART_RX_STA=0;
 				else 
         {
-          uint8_t queue_buf[4];
           if (USART_RX_BUF[1]==Head_motor || USART_RX_BUF[1]==Body_motor || 
           USART_RX_BUF[1]==Pressing_board_motor || USART_RX_BUF[1]==Rotating_shelf_motor)
           {
-            QueuePush(htim6_queue, USART_RX_BUF);
+            QueuePush(&htim6_queue, USART_RX_BUF);
           }
           else if ((USART_RX_BUF[1]==Base_motor || USART_RX_BUF[1]==Lift_motor || 
           USART_RX_BUF[1]==Pushing_book_motor || USART_RX_BUF[1]==Forward_pressing_board_motor))
           {
-            QueuePush(htim7_queue, USART_RX_BUF);
+            QueuePush(&htim7_queue, USART_RX_BUF);
           }
           else
           {
-            QueuePush(extra_queue, USART_RX_BUF);
+            QueuePush(&extra_queue, USART_RX_BUF);
           }
           USART_RX_STA = 0;
         }

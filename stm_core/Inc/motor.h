@@ -8,11 +8,8 @@
 #ifndef INC_MOTOR_H_
 #define INC_MOTOR_H_
 
-#include "tim.h"
-#include "usart.h"
 #include "sensor.h"
 #include "main.h"
-#include "protocol.h"
 
 #define FORWARD  GPIO_PIN_SET
 #define BACKWARD GPIO_PIN_RESET
@@ -51,7 +48,7 @@ typedef struct Motor
     uint32_t channel;
     uint16_t deg;
     uint16_t motor_div;
-    uint16_t rratio; 
+    uint16_t rratio;
     uint32_t pwm_us;
     uint8_t name;
     uint8_t power;
@@ -79,6 +76,10 @@ extern Motor *rotating_shelf_motor;
 extern Motor *Current_tim6_motor;
 
 extern Motor *Current_tim7_motor;
+
+extern uint8_t TIM6_stat;
+
+extern uint8_t TIM7_stat;
 
 void Forward_motor(Motor *motor, float per);
 

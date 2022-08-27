@@ -5,6 +5,8 @@
  *      Author: a3352
  */
 #include "sensor.h"
+#include "motor.h"
+#include "adc.h"
 
 uint8_t Check_P_cpl = CPL;
 uint32_t ADC_timeout = 0;
@@ -54,8 +56,8 @@ void Check_P_sensor(void){
 
 		    if (Adsorp_head_P > RESET_P_Threshold)
 		    {
-		    	Base_Position = RESETED;
-				Stop_Base();
+		    	base_motor->position = RESETED;
+		    	Stop_motor(base_motor);
 		    }
 		    Check_P_cpl = CPL;
 	}
@@ -89,8 +91,8 @@ void Check_P_sensor(void){
 
 		    if (Pressing_board_left_P > PRESSING_BOARD_P_Threshold && Pressing_board_right_P > PRESSING_BOARD_P_Threshold)
 		    {
-		    	Pressing_board_Position = LOW;
-		    	Stop_Pressing_board();
+		    	pressing_board_motor->position = NOT_RESETED;
+		    	Stop_motor(pressing_board_motor);
 		    }
 		    Check_P_cpl = CPL;
 	}
@@ -113,8 +115,8 @@ void Check_P_sensor(void){
 
 		    if (Lift_P > LIFT_P_Threshold)
 		    {
-		    	Lift_Position = HIGH;
-		    	Stop_Lift();
+		    	lift_motor->position = NOT_RESETED;
+		    	Stop_motor(lift_motor);
 		    }
 		    Check_P_cpl = CPL;
 	}

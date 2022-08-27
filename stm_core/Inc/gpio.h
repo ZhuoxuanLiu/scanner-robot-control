@@ -29,8 +29,7 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-#include "motor.h"
-#include "delay.h"
+
 /* USER CODE END Includes */
 
 /* USER CODE BEGIN Private defines */

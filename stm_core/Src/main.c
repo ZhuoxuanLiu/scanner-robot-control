@@ -18,12 +18,13 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "adc.h"
+#include "delay.h"
+#include "protocol.h"
+#include "queue.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
-#include "protocol.h"
-#include "queue.h"
+#include "adc.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -101,17 +102,17 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if(QueueEmpty(htim6_queue)==FALSE)
+	  if(QueueEmpty(&htim6_queue)==FALSE)
 	  {
-      handle_htim6_queue();
+		  handle_htim6_queue();
 	  }
-	  if(QueueEmpty(htim7_queue)==FALSE)
+	  if(QueueEmpty(&htim7_queue)==FALSE)
 	  {
-      handle_htim7_queue();
+		  handle_htim7_queue();
 	  }
-    if(QueueEmpty(extra_queue)==FALSE)
+	  if(QueueEmpty(&extra_queue)==FALSE)
 	  {
-      handle_extra_queue();
+    	handle_extra_queue();
 	  }
 	/* CHECK P_SENSOR VALUE */
 

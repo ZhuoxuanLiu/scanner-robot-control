@@ -19,6 +19,9 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "tim.h"
+#include "usart.h"
+#include "motor.h"
+#include "protocol.h"
 
 /* USER CODE BEGIN 0 */
 uint16_t TIM6_IT_count = 0;
@@ -428,7 +431,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     	{
         HAL_TIM_PWM_Stop(&htim2, Current_tim6_motor->channel);
         HAL_TIM_Base_Stop_IT(htim);
-        if (Current_tim6_motor->check_sensor_period != NULL)
+        TIM6_stat = OFF;
+        if (Current_tim6_motor->check_sensor_period != NONE)
         {
           Current_tim6_motor->check_sensor_period = FALSE;
         }
@@ -450,7 +454,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     	{
         HAL_TIM_PWM_Stop(&htim3, Current_tim7_motor->channel);
         HAL_TIM_Base_Stop_IT(htim);
-        if (Current_tim7_motor->check_sensor_period != NULL)
+        TIM7_stat = OFF;
+        if (Current_tim7_motor->check_sensor_period != NONE)
         {
           Current_tim7_motor->check_sensor_period = FALSE;
         }
