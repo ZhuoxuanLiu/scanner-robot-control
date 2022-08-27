@@ -15,6 +15,7 @@ from alibabacloud_tea_util import models as util_models
 from alibabacloud_tea_util.client import Client as UtilClient
 # pip install alibabacloud_ocr20191230==2.0.10
 
+
 class OCR:
     def __init__(self):
         self.client = self.create_client('LTAI5t9pZMs5AGpxNMJt4jt4', '69Zx3TBKFKGIMJfJWhL3BDi3Py01hi')
@@ -41,17 +42,8 @@ class OCR:
         # 访问的域名
         config.endpoint = f'ocr.cn-shanghai.aliyuncs.com'
         return ocr20191230Client(config)
-
-    def process(
-        self,
-        object_name,
-        object_path
-    ):
-        
-        # 首先初始化AccessKeyId、AccessKeySecret、Endpoint等信息。
-        # 通过环境变量获取，或者把诸如“<你的AccessKeyId>”替换成真实的AccessKeyId等。
-
-        # 分别以HTTP、HTTPS协议访问。
+    
+    def upload(object_name, object_path):
         access_key_id = os.getenv('OSS_TEST_ACCESS_KEY_ID', 'LTAI5t9pZMs5AGpxNMJt4jt4')
         access_key_secret = os.getenv('OSS_TEST_ACCESS_KEY_SECRET', '69Zx3TBKFKGIMJfJWhL3BDi3Py01hi')
         bucket_name = os.getenv('OSS_TEST_BUCKET', 'scanner-lzx')
@@ -66,6 +58,18 @@ class OCR:
         # 如果您希望直接在浏览器中预览文件，配置文件HTTP头中的Content-Disposition为inline并使用Bucket绑定的自定义域名进行访问。
         headers['content-disposition'] = 'inline'
         url = bucket.sign_url('GET', object_name, 60, headers=headers, slash_safe=True)
+        return url
+        # return "https://" + bucket_name + "." + endpoint + "/" + object_name
+    
+
+    def process(
+        self,
+        object_name,
+        object_path,
+        output_path
+    ):
+        
+        url = self.upload(object_name, object_path)
 
         trim_document_request = ocr_20191230_models.TrimDocumentRequest(
             file_url=url,   # must be oss
@@ -83,10 +87,9 @@ class OCR:
                 while (res_status != 'PROCESS_SUCCESS'):
                     ret_json = json.loads(UtilClient.to_jsonstring(TeaCore.to_map(self.client.get_async_job_result_with_options(get_async_job_result_request, runtime))))
                     res_status = ret_json['body']['Data']['Status']
-                    
-
+                
                 ret_html = json.loads(ret_json['body']['Data']['Result'])['Content'] + "<style> body { font-family: STSong-Light } </style>"
-                resultFile = open(r'C:\Users\a3352\Desktop\out.pdf', "w+b")
+                resultFile = open(output_path, "w+b")
                 pisa.CreatePDF(ret_html, resultFile)
                 resultFile.close()
 
@@ -97,7 +100,9 @@ class OCR:
             # 如有需要，请打印 error
             UtilClient.assert_as_string(error)
 
-
+"""
 if __name__ == '__main__':
     ocr = OCR()
-    ocr.process('test1.pdf', r'C:\Users\a3352\Desktop\result1.pdf')
+    ocr.process(object_name='test1.pdf', object_path=r'C:\Users\a3352\Desktop\result1.pdf', output_path=r'C:\Users\a3352\Desktop\out.pdf')
+"""
+

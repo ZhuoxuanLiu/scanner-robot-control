@@ -4,7 +4,6 @@ import time
 from threading import Thread
 from queue import Queue
 from protocol import Protocol
-from sys_stat import SysStat
 
 
 class SerialConnect:
@@ -52,13 +51,14 @@ class SerialConnect:
         while True:
             start_time = time.time()
             while time.time() - start_time < over_time:
-                data = self.ser.read(self.ser.inWaiting())
+                data = self.ser.read(4)
                 # data = self.open_com.read() # read 1 size
                 data = str(data)
                 if data != '':
                     print(f'Get data is:{data}')
                     break
             self.data_queue.put(data)
+            time.sleep(0.01)
     
     def t_read(self, over_time=1):
         Thread(target=self.read, args=(over_time,)).start()
@@ -94,8 +94,8 @@ class SerialControl:
         Protocol.backward: 'backward',
     }
     
-    def __init__(self) -> None:
-        self.sys_state = SysStat()
+    def __init__(self, sys_state) -> None:
+        self.sys_state = sys_state
         self.com = SerialConnect()
         queue_dict = {
             Protocol.base_motor: Queue(),
@@ -240,6 +240,8 @@ class SerialControl:
                     self.reset_answer_queue[head].put(data)
                 if type == Protocol.result:
                     self.command_result_queue[head].put(data)
+            else:
+                time.sleep(0.1)
             
     def t_serial_handler(self):
         Thread(target=self.serial_handler).start()
@@ -247,8 +249,8 @@ class SerialControl:
 
 class Engine:
     
-    def __init__(self) -> None:
-        self.sc = SerialControl()
+    def __init__(self, sys_state) -> None:
+        self.sc = SerialControl(sys_state)
         self.initial_check()
         pass
     
@@ -289,19 +291,21 @@ class Engine:
         if self.sc.state.get_position(motor) == Protocol.not_reseted:
             self.sc.motor_command(motor, Protocol.backward, timeout, per)
 
-                
       
-    def move(self):
+    def rotate(self):
         self.motor_reset(Protocol.base_motor)
         self.activate_vacuum_pump()
         # self.motor_rotate_multi((Protocol.head_motor, Protocol.base_motor))
         self.motor_rotate(Protocol.head_motor)
-        self.motor_reset(Protocol.base_motor)
+        self.motor_rotate(Protocol.base_motor)
         self.motor_rotate(Protocol.forward_pressing_board_motor)
         self.deactivate_vacuum_pump()
-        self.motor_reset(Protocol.head_motor)
         self.motor_rotate(Protocol.body_motor)
+        self.motor_reset(Protocol.head_motor)
         self.motor_rotate(Protocol.pressing_board_motor)
+        
+        
+    def reset(self):
         self.motor_reset(Protocol.body_motor)
         self.motor_reset(Protocol.base_motor)
         
@@ -319,6 +323,7 @@ class Engine:
         if self.sc.state.get_book_stat() == Protocol.on_board:
             self.motor_rotate(Protocol.rotating_shelf_motor)
             self.motor_reset(Protocol.rotating_shelf_motor)
+            self.sc.state.update_book_stat(Protocol.off_board)
         
         
     def stop(self):

@@ -31,7 +31,9 @@ class SysStat:
         'power': power,
         'position': position,
         'malfunction': False,
-        'book': Protocol.off_board
+        'book': Protocol.off_board,
+        'last_page':False,
+        'page_num': 0,
     }
     
     def __init__(self) -> None:
@@ -65,3 +67,20 @@ class SysStat:
         self.params['book'] = stat
         self.mongo.update_document(self.params)
 
+
+    def get_last_page_stat(self):
+        return self.params['last_page']
+    
+    
+    def update_last_page_stat(self, stat):
+        self.params['last_page'] = stat
+        self.mongo.update_document(self.params)
+        
+    
+    def get_page_num(self):
+        return self.params['page_num']
+    
+    
+    def update_page_num(self, stat):
+        self.params['page_num'] = stat
+        self.mongo.update_document(self.params)

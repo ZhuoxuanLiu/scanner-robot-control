@@ -1,5 +1,7 @@
+from threading import Thread
 from pymongo import MongoClient
-
+from queue import Queue
+import time
 
 class Mongo:
     def __init__(self) -> None:
@@ -8,7 +10,8 @@ class Mongo:
         document = self.collection.find_one()
         if document is None:
             self.collection.insert_one({'name': 'system_status'})
-        pass
+        self.update_queue = Queue()
+        self.t_update()
     
     
     def get_document(self):
@@ -17,8 +20,20 @@ class Mongo:
     
     
     def update_document(self, document):
-        self.collection.replace_one({"name": 'system_status'}, document)
-        pass
+        self.update_queue.put(document)
+    
+    
+    def _update(self):
+        while True:
+            if not self.update_queue.empty():
+                doc = self.update_queue.get()
+                self.collection.replace_one({"name": 'system_status'}, doc)
+            else:
+                time.sleep(0.5)
+    
+                
+    def t_update(self):
+        Thread(target=self._update).start()
                 
     
     def __del__(self):
