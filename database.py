@@ -33,7 +33,7 @@ class Mongo:
     
                 
     def t_update(self):
-        Thread(target=self._update).start()
+        Thread(target=self._update, daemon=True).start()
                 
     
     def __del__(self):

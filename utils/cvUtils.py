@@ -178,7 +178,7 @@ class Camera:
                 
                 
     def t_process(self, bi=False):
-        Thread(target=self.process, args=(bi,)).start()
+        Thread(target=self.process, args=(bi,), daemon=True).start()
     
     
 

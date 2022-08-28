@@ -61,7 +61,7 @@ class SerialConnect:
             time.sleep(0.01)
     
     def t_read(self, over_time=1):
-        Thread(target=self.read, args=(over_time,)).start()
+        Thread(target=self.read, args=(over_time,), daemon=True).start()
     
     def __del__(self):
         self.close()
@@ -152,7 +152,8 @@ class SerialControl:
                 self.sys_state.update_position(head, body)
         except Exception as e:
             print(e)
-            self.sys_state.params['malfunction'] = True
+            print(f'reset {self.motor_map[motor]} to system state')
+            self.motor_reset(motor, timeout)
             
     def _recv_motor_reset(self, motor, timeout):
         try:
@@ -192,7 +193,7 @@ class SerialControl:
             print(e)
             self.sc.state.params['malfunction'] = True  
             
-    def motor_command_reset_all(self, timeout, exclude: tuple=None):
+    def motor_command_rollback_all(self, timeout, exclude: tuple=None):
         try:
             for m in self.motor_list:
                 if m not in exclude and self.sys_state.get_position(m) == Protocol.not_reseted:
@@ -223,7 +224,11 @@ class SerialControl:
         for m in self.motor_list:
             self._recv_motor_check(m, timeout)
             
-    def motor_reset(self, timeout):
+    def motor_reset(self, motor, timeout):
+        self.com.send(Protocol.reset + motor + self.sys_state.get_position(motor) + Protocol.bak)
+        self._recv_motor_reset(motor, timeout)
+            
+    def motor_reset_all(self, timeout):
         for m in self.motor_list:
             self.com.send(Protocol.reset + m + self.sys_state.get_position(m) + Protocol.bak)
         for m in self.motor_list:
@@ -244,7 +249,7 @@ class SerialControl:
                 time.sleep(0.1)
             
     def t_serial_handler(self):
-        Thread(target=self.serial_handler).start()
+        Thread(target=self.serial_handler, daemon=True).start()
 
 
 class Engine:
@@ -287,46 +292,84 @@ class Engine:
             self.sc.motor_command_multi(tuple(rotate_m), tuple(rotate_d), timeout, tuple(rotate_p))
                 
                 
-    def motor_reset(self, motor, per=Protocol.hundred, timeout=10):
+    def motor_rollback(self, motor, per=Protocol.hundred, timeout=10):
         if self.sc.state.get_position(motor) == Protocol.not_reseted:
             self.sc.motor_command(motor, Protocol.backward, timeout, per)
 
-      
+    
     def rotate(self):
-        self.motor_reset(Protocol.base_motor)
+        if self.sc.state.params['malfunction'] == True:
+            return
+        self.motor_rollback(Protocol.base_motor)
+        if self.sc.state.params['malfunction'] == True:
+            return
         self.activate_vacuum_pump()
+        if self.sc.state.params['malfunction'] == True:
+            return
         # self.motor_rotate_multi((Protocol.head_motor, Protocol.base_motor))
         self.motor_rotate(Protocol.head_motor)
+        if self.sc.state.params['malfunction'] == True:
+            return
         self.motor_rotate(Protocol.base_motor)
+        if self.sc.state.params['malfunction'] == True:
+            return
         self.motor_rotate(Protocol.forward_pressing_board_motor)
+        if self.sc.state.params['malfunction'] == True:
+            return
         self.deactivate_vacuum_pump()
+        if self.sc.state.params['malfunction'] == True:
+            return
         self.motor_rotate(Protocol.body_motor)
-        self.motor_reset(Protocol.head_motor)
+        if self.sc.state.params['malfunction'] == True:
+            return
+        self.motor_rollback(Protocol.head_motor)
+        if self.sc.state.params['malfunction'] == True:
+            return
         self.motor_rotate(Protocol.pressing_board_motor)
         
         
     def reset(self):
-        self.motor_reset(Protocol.body_motor)
-        self.motor_reset(Protocol.base_motor)
-        
+        if self.sc.state.params['malfunction'] == True:
+            return
+        self.motor_rollback(Protocol.body_motor)
+        if self.sc.state.params['malfunction'] == True:
+            return
+        self.motor_rollback(Protocol.base_motor)
+ 
         
     def in_book(self):
         if self.sc.state.get_book_stat() == Protocol.off_board:
+            if self.sc.state.params['malfunction'] == True:
+                return
             self.motor_rotate(Protocol.lift_motor)
+            if self.sc.state.params['malfunction'] == True:
+                return
             self.motor_rotate(Protocol.pushing_book_motor)
-            self.motor_reset(Protocol.pushing_book_motor)
-            self.motor_reset(Protocol.lift_motor)
+            if self.sc.state.params['malfunction'] == True:
+                return
+            self.motor_rollback(Protocol.pushing_book_motor)
+            if self.sc.state.params['malfunction'] == True:
+                return
+            self.motor_rollback(Protocol.lift_motor)
+            if self.sc.state.params['malfunction'] == True:
+                return
             self.sc.state.update_book_stat(Protocol.on_board)
             
         
     def out_book(self):
         if self.sc.state.get_book_stat() == Protocol.on_board:
+            if self.sc.state.params['malfunction'] == True:
+                return
             self.motor_rotate(Protocol.rotating_shelf_motor)
-            self.motor_reset(Protocol.rotating_shelf_motor)
+            if self.sc.state.params['malfunction'] == True:
+                return
+            self.motor_rollback(Protocol.rotating_shelf_motor)
+            if self.sc.state.params['malfunction'] == True:
+                return
             self.sc.state.update_book_stat(Protocol.off_board)
         
         
     def stop(self):
-        self.sc.motor_command_reset_all(exclude=(Protocol.base_motor,), timeout=20)
+        self.sc.motor_command_rollback_all(exclude=(Protocol.base_motor,), timeout=20)
         self.motor_rotate(Protocol.base_motor, Protocol.fifty)  # 转到正中间
         self.deactivate_vacuum_pump()

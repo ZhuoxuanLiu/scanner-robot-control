@@ -28,12 +28,12 @@ class SysStat:
     }
     
     params = {
-        'power': power,
-        'position': position,
-        'malfunction': False,
-        'book': Protocol.off_board,
-        'last_page':False,
-        'page_num': 0,
+        'power': power,                     # 开关状态   
+        'position': position,               # 位置状态
+        'malfunction': False,               # 故障状态
+        'book': Protocol.off_board,         # 书是否在机器上
+        'last_page':False,                  # 是否是最后一页
+        'page_num': 0,                      # 页码
     }
     
     def __init__(self) -> None:
