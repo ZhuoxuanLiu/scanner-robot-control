@@ -77,8 +77,6 @@ void Error_Handler(void);
 #define Pressing_board_2_GPIO_Port GPIOA
 #define Lift_sensor_Pin GPIO_PIN_7
 #define Lift_sensor_GPIO_Port GPIOA
-#define Pushing_book_DIR_Pin GPIO_PIN_5
-#define Pushing_book_DIR_GPIO_Port GPIOG
 #define Forward_pressing_board_DIR_Pin GPIO_PIN_6
 #define Forward_pressing_board_DIR_GPIO_Port GPIOG
 #define Pressing_board_DIR_Pin GPIO_PIN_7
@@ -95,6 +93,8 @@ void Error_Handler(void);
 #define Forward_pressing_board_motor_GPIO_Port GPIOC
 #define Head_motor_Pin GPIO_PIN_15
 #define Head_motor_GPIO_Port GPIOA
+#define Pushing_book_DIR_Pin GPIO_PIN_15
+#define Pushing_book_DIR_GPIO_Port GPIOG
 #define Body_motor_Pin GPIO_PIN_3
 #define Body_motor_GPIO_Port GPIOB
 #define LED0_Pin GPIO_PIN_5
