@@ -46,22 +46,22 @@ void Check_P_sensor(void){
 	if (Sensor_current_check == Adsorp_head_sensor)
 	{
 		Adsorp_head_P = sensor_map(avg[Adsorp_head_sensor_channel], 1880, 2350, PRESS_MIN, PRESS_MAX);
-			if(Adsorp_head_P < PRESS_MIN)
-			{
-				Adsorp_head_P = 0;
-			}
+		if(Adsorp_head_P < PRESS_MIN)
+		{
+			Adsorp_head_P = 0;
+		}
 
-			if(Adsorp_head_P > PRESS_MAX)
-			{
-				Adsorp_head_P = PRESS_MAX;
-			}
+		if(Adsorp_head_P > PRESS_MAX)
+		{
+			Adsorp_head_P = PRESS_MAX;
+		}
 
-		    if (Adsorp_head_P > RESET_P_Threshold)
-		    {
-		    	base_motor->position = RESETED;
-		    	Stop_motor(base_motor);
-		    }
-		    Check_P_cpl = CPL;
+		if (Adsorp_head_P > RESET_P_Threshold)
+		{
+			base_motor->position = RESETED;
+			Stop_motor(base_motor);
+		}
+		Check_P_cpl = CPL;
 	}
 	/* CHECK adsorption head sensor */
 
@@ -71,32 +71,32 @@ void Check_P_sensor(void){
 	{
 		Pressing_board_left_P = sensor_map(avg[Pressing_board_left_sensor_channel], 1880, 2350, PRESS_MIN, PRESS_MAX);
 		Pressing_board_right_P = sensor_map(avg[Pressing_board_right_sensor_channel], 1880, 2350, PRESS_MIN, PRESS_MAX);
-			if(Pressing_board_left_P < PRESS_MIN)
-			{
-				Pressing_board_left_P = 0;
-			}
+		if(Pressing_board_left_P < PRESS_MIN)
+		{
+			Pressing_board_left_P = 0;
+		}
 
-			if(Pressing_board_left_P > PRESS_MAX)
-			{
-				Pressing_board_left_P = PRESS_MAX;
-			}
+		if(Pressing_board_left_P > PRESS_MAX)
+		{
+			Pressing_board_left_P = PRESS_MAX;
+		}
 
-			if(Pressing_board_right_P < PRESS_MIN)
-			{
-				Pressing_board_right_P = 0;
-			}
+		if(Pressing_board_right_P < PRESS_MIN)
+		{
+			Pressing_board_right_P = 0;
+		}
 
-			if(Pressing_board_right_P > PRESS_MAX)
-			{
-				Pressing_board_right_P = PRESS_MAX;
-			}
+		if(Pressing_board_right_P > PRESS_MAX)
+		{
+			Pressing_board_right_P = PRESS_MAX;
+		}
 
-		    if (Pressing_board_left_P > PRESSING_BOARD_P_Threshold && Pressing_board_right_P > PRESSING_BOARD_P_Threshold)
-		    {
-		    	pressing_board_motor->position = NOT_RESETED;
-		    	Stop_motor(pressing_board_motor);
-		    }
-		    Check_P_cpl = CPL;
+		if (Pressing_board_left_P > PRESSING_BOARD_P_Threshold && Pressing_board_right_P > PRESSING_BOARD_P_Threshold)
+		{
+			pressing_board_motor->position = NOT_RESETED;
+			Stop_motor(pressing_board_motor);
+		}
+		Check_P_cpl = CPL;
 	}
 	/* CHECK Pressing board sensor */
 
@@ -105,22 +105,22 @@ void Check_P_sensor(void){
 	else if (Sensor_current_check == Lift_sensor)
 	{
 		Lift_P = sensor_map(avg[Lift_sensor_channel], 1880, 2350, PRESS_MIN, PRESS_MAX);
-			if(Lift_P < PRESS_MIN)
-			{
-				Lift_P = 0;
-			}
+		if(Lift_P < PRESS_MIN)
+		{
+			Lift_P = 0;
+		}
 
-			if(Lift_P > PRESS_MAX)
-			{
-				Lift_P = PRESS_MAX;
-			}
+		if(Lift_P > PRESS_MAX)
+		{
+			Lift_P = PRESS_MAX;
+		}
 
-		    if (Lift_P > LIFT_P_Threshold)
-		    {
-		    	lift_motor->position = NOT_RESETED;
-		    	Stop_motor(lift_motor);
-		    }
-		    Check_P_cpl = CPL;
+		if (Lift_P > LIFT_P_Threshold)
+		{
+			lift_motor->position = NOT_RESETED;
+			Stop_motor(lift_motor);
+		}
+		Check_P_cpl = CPL;
 	}
 	/* CHECK Lift sensor */
 

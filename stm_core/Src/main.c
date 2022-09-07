@@ -25,6 +25,7 @@
 #include "usart.h"
 #include "gpio.h"
 #include "adc.h"
+#include "motor.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -102,11 +103,11 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if(QueueEmpty(&htim6_queue)==FALSE)
+	  if(QueueEmpty(&htim6_queue)==FALSE && TIM6_stat == OFF)
 	  {
 		  handle_htim6_queue();
 	  }
-	  if(QueueEmpty(&htim7_queue)==FALSE)
+	  if(QueueEmpty(&htim7_queue)==FALSE && TIM7_stat == OFF)
 	  {
 		  handle_htim7_queue();
 	  }
