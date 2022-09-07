@@ -10,8 +10,9 @@
 
 #include "main.h"
 #include "stdlib.h"
+#include "usart.h"
 
-typedef uint8_t *QDataType;
+typedef uint8_t QDataType[USART_REC_LEN];
 
 typedef struct QueueNode
 {
@@ -31,11 +32,11 @@ void QueuePush(Queue* pq, QDataType x);
 
 void QueuePop(Queue* pq);
 
-QDataType QueueFront(Queue* pq);
+uint8_t* QueueFront(Queue* pq);
 
-QDataType QueueBack(Queue* pq);
+uint8_t* QueueBack(Queue* pq);
 
-uint16_t QueueEmpty(Queue* pq);
+uint8_t QueueEmpty(Queue* pq);
 
 void QueueDestory(Queue* pq);
 

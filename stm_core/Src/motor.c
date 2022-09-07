@@ -29,7 +29,7 @@ Motor *base_motor = &(Motor){
 	.power = OFF,
 	.position = NOT_RESETED,
 	.check_sensor_period = TRUE,
-	.check_sensor_dir = BACKWARD
+	.check_sensor_dir = BACKWARD_PERIOD
 };
 
 Motor *body_motor = &(Motor){
@@ -72,12 +72,12 @@ Motor *lift_motor = &(Motor){
 	.deg = 360, 
 	.motor_div = 32, 
 	.rratio = 1, 
-	.pwm_us = 200,
+	.pwm_us = 500,
 	.name = Lift_motor,
 	.power = OFF,
 	.position = RESETED,
 	.check_sensor_period = TRUE,
-	.check_sensor_dir = FORWARD
+	.check_sensor_dir = FORWARD_PERIOD
 };
 
 Motor *pushing_book_motor = &(Motor){
@@ -88,7 +88,7 @@ Motor *pushing_book_motor = &(Motor){
 	.deg = 360, 
 	.motor_div = 32, 
 	.rratio = 1, 
-	.pwm_us = 200,
+	.pwm_us = 100,
 	.name = Pushing_book_motor,
 	.power = OFF,
 	.position = RESETED,
@@ -125,7 +125,7 @@ Motor *pressing_board_motor = &(Motor){
 	.power = OFF,
 	.position = RESETED,
 	.check_sensor_period = TRUE,
-	.check_sensor_dir = FORWARD
+	.check_sensor_dir = FORWARD_PERIOD
 };
 
 Motor *rotating_shelf_motor = &(Motor){
@@ -188,7 +188,7 @@ void Forward_motor(Motor *motor, float per){
 	}
     motor->power = ON;
 	/* CHECK P ONLY IN FORWARD PROCESS */
-	if (motor->check_sensor_dir == FORWARD){
+	if (motor->check_sensor_dir == FORWARD_PERIOD){
 		motor->check_sensor_period = TRUE;
 		Sensor_current_check = motor->name;
 		while (motor->position == RESETED && motor->check_sensor_period == TRUE)
@@ -218,7 +218,7 @@ void Backward_motor(Motor *motor, float per){
 	}
     motor->power = ON;
 	/* CHECK P ONLY IN RESET PROCESS */
-	if (motor->check_sensor_dir == BACKWARD){
+	if (motor->check_sensor_dir == BACKWARD_PERIOD){
 		motor->check_sensor_period = TRUE;
 		Sensor_current_check = motor->name;
 		while (motor->position == NOT_RESETED && motor->check_sensor_period == TRUE)

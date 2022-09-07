@@ -137,30 +137,30 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			{
 				if(RxBuffer[0]!=0x0a) USART_RX_STA=0;
 				else 
-        {
-          if (USART_RX_BUF[1]==Head_motor || USART_RX_BUF[1]==Body_motor || 
-          USART_RX_BUF[1]==Pressing_board_motor || USART_RX_BUF[1]==Rotating_shelf_motor)
-          {
-            QueuePush(&htim6_queue, USART_RX_BUF);
-          }
-          else if ((USART_RX_BUF[1]==Base_motor || USART_RX_BUF[1]==Lift_motor || 
-          USART_RX_BUF[1]==Pushing_book_motor || USART_RX_BUF[1]==Forward_pressing_board_motor))
-          {
-            QueuePush(&htim7_queue, USART_RX_BUF);
-          }
-          else
-          {
-            QueuePush(&extra_queue, USART_RX_BUF);
-          }
-          USART_RX_STA = 0;
-        }
+				{
+				  if (USART_RX_BUF[1]==Head_motor || USART_RX_BUF[1]==Body_motor ||
+				  USART_RX_BUF[1]==Pressing_board_motor || USART_RX_BUF[1]==Rotating_shelf_motor)
+				  {
+					QueuePush(&htim6_queue, USART_RX_BUF);
+				  }
+				  else if ((USART_RX_BUF[1]==Base_motor || USART_RX_BUF[1]==Lift_motor ||
+				  USART_RX_BUF[1]==Pushing_book_motor || USART_RX_BUF[1]==Forward_pressing_board_motor))
+				  {
+					QueuePush(&htim7_queue, USART_RX_BUF);
+				  }
+				  else
+				  {
+					QueuePush(&extra_queue, USART_RX_BUF);
+				  }
+				  USART_RX_STA = 0;
+				}
 			}
 			else
 			{
 				if(RxBuffer[0]==0x0d) USART_RX_STA|=0x4000;
 				else
 				{
-					USART_RX_BUF[USART_RX_STA&0X3FFF]=RxBuffer[0] ;
+					USART_RX_BUF[USART_RX_STA&0X3FFF]=RxBuffer[0];
 					USART_RX_STA++;
 					if(USART_RX_STA>(USART_REC_LEN-1)) USART_RX_STA=0;
 				}

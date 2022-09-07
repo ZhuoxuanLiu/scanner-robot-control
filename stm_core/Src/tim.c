@@ -49,7 +49,7 @@ void MX_TIM2_Init(uint32_t pwm_period)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 35999;
+  htim2.Init.Prescaler = 35;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim2.Init.Period = pwm_period-1;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -115,7 +115,7 @@ void MX_TIM3_Init(uint32_t pwm_period)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 35999;
+  htim3.Init.Prescaler = 35;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim3.Init.Period = pwm_period-1;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -179,7 +179,7 @@ void MX_TIM6_Init(uint32_t pulse_num, uint32_t pwm_period)
 
   /* USER CODE END TIM6_Init 1 */
   htim6.Instance = TIM6;
-  htim6.Init.Prescaler = 35;
+  htim6.Init.Prescaler = 35999;
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim6.Init.Period = pwm_period*pulse_num/1000;
   htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -212,7 +212,7 @@ void MX_TIM7_Init(uint32_t pulse_num, uint32_t pwm_period)
 
   /* USER CODE END TIM7_Init 1 */
   htim7.Instance = TIM7;
-  htim7.Init.Prescaler = 35;
+  htim7.Init.Prescaler = 35999;
   htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim7.Init.Period = pwm_period*pulse_num/1000;
   htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -422,26 +422,24 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if(htim==(&htim6))
     {
-
     	if (TIM6_IT_count == 0)
     	{
     		TIM6_IT_count++;
     	}
     	else
     	{
-        HAL_TIM_PWM_Stop(&htim2, Current_tim6_motor->channel);
-        HAL_TIM_Base_Stop_IT(htim);
-        TIM6_stat = OFF;
-        if (Current_tim6_motor->check_sensor_period != NONE)
-        {
-          Current_tim6_motor->check_sensor_period = FALSE;
-        }
-        Current_tim6_motor->power = OFF;
-        tim6_result_str(Current_tim6_motor);
-        UART_Send(tim6_result_data);
-        TIM6_IT_count = 0;
-    	}
-
+			HAL_TIM_PWM_Stop(&htim2, Current_tim6_motor->channel);
+			HAL_TIM_Base_Stop_IT(htim);
+			TIM6_stat = OFF;
+			if (Current_tim6_motor->check_sensor_period != NONE)
+			{
+				Current_tim6_motor->check_sensor_period = FALSE;
+			}
+				Current_tim6_motor->power = OFF;
+				tim6_result_str(Current_tim6_motor);
+				UART_Send(tim6_result_data);
+				TIM6_IT_count = 0;
+			}
     }
     if(htim==(&htim7))
     {
@@ -452,18 +450,18 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     	}
     	else
     	{
-        HAL_TIM_PWM_Stop(&htim3, Current_tim7_motor->channel);
-        HAL_TIM_Base_Stop_IT(htim);
-        TIM7_stat = OFF;
-        if (Current_tim7_motor->check_sensor_period != NONE)
-        {
-          Current_tim7_motor->check_sensor_period = FALSE;
-        }
-        Current_tim7_motor->power = OFF;
-        tim7_result_str(Current_tim7_motor);
-        UART_Send(tim7_result_data);
-        TIM7_IT_count = 0;
-    	}
+			HAL_TIM_PWM_Stop(&htim3, Current_tim7_motor->channel);
+			HAL_TIM_Base_Stop_IT(htim);
+			TIM7_stat = OFF;
+			if (Current_tim7_motor->check_sensor_period != NONE)
+			{
+			  Current_tim7_motor->check_sensor_period = FALSE;
+			}
+				Current_tim7_motor->power = OFF;
+				tim7_result_str(Current_tim7_motor);
+				UART_Send(tim7_result_data);
+				TIM7_IT_count = 0;
+			}
 
     }
 }

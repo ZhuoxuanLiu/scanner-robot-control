@@ -1,6 +1,7 @@
 #include "protocol.h"
 #include "queue.h"
 #include "pump.h"
+#include "usart.h"
 
 uint8_t tim6_result_data[4];
 uint8_t tim7_result_data[4];
@@ -110,10 +111,13 @@ void handle_htim6_queue(void)
 	uint8_t *recv_buf;
 	recv_buf = QueueFront(&htim6_queue);
 	QueuePop(&htim6_queue);
-	type = recv_buf[0];
-	head = recv_buf[1];
-	mode = recv_buf[2];
-	body = recv_buf[3];
+	type = *recv_buf;
+	recv_buf++;
+	head = *recv_buf;
+	recv_buf++;
+	mode = *recv_buf;
+	recv_buf++;
+	body = *recv_buf;
 
 	if (type == CHECK)
 	{
@@ -242,10 +246,13 @@ void handle_htim7_queue(void)
 	uint8_t *recv_buf;
 	recv_buf = QueueFront(&htim7_queue);
 	QueuePop(&htim7_queue);
-	type = recv_buf[0];
-	head = recv_buf[1];
-	mode = recv_buf[2];
-	body = recv_buf[3];
+	type = *recv_buf;
+	recv_buf++;
+	head = *recv_buf;
+	recv_buf++;
+	mode = *recv_buf;
+	recv_buf++;
+	body = *recv_buf;
 
 	if (type == CHECK)
 	{
@@ -372,10 +379,14 @@ void handle_extra_queue(void)
 	uint8_t *recv_buf;
 	recv_buf = QueueFront(&extra_queue);
 	QueuePop(&extra_queue);
-	type = recv_buf[0];
-	head = recv_buf[1];
-	mode = recv_buf[2];
-	body = recv_buf[3];
+
+	type = *recv_buf;
+	recv_buf++;
+	head = *recv_buf;
+	recv_buf++;
+	mode = *recv_buf;
+	recv_buf++;
+	body = *recv_buf;
 
 	if (type == COMMAND)
 	{

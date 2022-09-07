@@ -7,6 +7,8 @@
 #include "sensor.h"
 #include "motor.h"
 #include "adc.h"
+#include <stdlib.h>
+#include "usart.h"
 
 uint8_t Check_P_cpl = CPL;
 uint32_t ADC_timeout = 0;
@@ -168,7 +170,7 @@ void UART_Send_P_Value(void)
 		{
 			itoa(0, str, 10);
 		}
-		UART_Send(str);
+		UART_Send((uint8_t *)str);
 	}
 }
 

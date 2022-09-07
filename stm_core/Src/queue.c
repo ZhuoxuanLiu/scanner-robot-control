@@ -55,25 +55,25 @@ void QueuePop(Queue* pq)
 }
 
 
-QDataType QueueFront(Queue* pq)
+uint8_t* QueueFront(Queue* pq)
 {
-	return pq->head->data;
+	return (uint8_t *)pq->head->data;
 }
 
-QDataType QueueBack(Queue* pq)
+uint8_t* QueueBack(Queue* pq)
 {
-	return pq->tail->data;
+	return (uint8_t *)pq->tail->data;
 }
 
-uint16_t QueueEmpty(Queue* pq)
+uint8_t QueueEmpty(Queue* pq)
 {
 	if (pq->head == NULL)
 	{
-		return 1;
+		return '1';
 	}
 	else
 	{
-		return 0;
+		return '0';
 	}
 }
 

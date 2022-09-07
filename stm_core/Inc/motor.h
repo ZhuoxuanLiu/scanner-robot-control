@@ -14,6 +14,9 @@
 #define FORWARD  GPIO_PIN_SET
 #define BACKWARD GPIO_PIN_RESET
 
+#define FORWARD_PERIOD  	'1'
+#define BACKWARD_PERIOD 	'0'
+
 
 /* Define timer -------------------------------------*/
 
