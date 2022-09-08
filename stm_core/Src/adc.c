@@ -19,13 +19,9 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "adc.h"
-
+#include "sensor.h"
 /* USER CODE BEGIN 0 */
-uint32_t P_SENSOR[4];
-uint16_t P_SENSOR_NUM = 4;
-uint16_t ADC_rank = 0;
-uint16_t ADC_num = 0;
-uint16_t ADC_Sample_num = 200;
+
 /* USER CODE END 0 */
 
 ADC_HandleTypeDef hadc1;
@@ -49,7 +45,8 @@ void MX_ADC1_Init(void)
   hadc1.Instance = ADC1;
   hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
   hadc1.Init.ContinuousConvMode = DISABLE;
-  hadc1.Init.DiscontinuousConvMode = DISABLE;
+  hadc1.Init.DiscontinuousConvMode = ENABLE;
+  hadc1.Init.NbrOfDiscConversion = 1;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.NbrOfConversion = 4;
@@ -119,7 +116,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     PA6     ------> ADC1_IN6
     PA7     ------> ADC1_IN7
     */
-    GPIO_InitStruct.Pin = Arm_sensor_Pin|Pressing_board_1_Pin|Pressing_board_2_Pin|Lift_sensor_Pin;
+    GPIO_InitStruct.Pin = Head_sensor_Pin|Pressing_board_1_Pin|Pressing_board_2_Pin|Lift_sensor_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
@@ -127,7 +124,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     HAL_NVIC_SetPriority(ADC1_2_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(ADC1_2_IRQn);
   /* USER CODE BEGIN ADC1_MspInit 1 */
-    for (int i=0; i<3; i++)
+    for (int i=0; i<P_SENSOR_NUM; i++)
     {
     	P_SENSOR[i] = 0;
     }
@@ -152,7 +149,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
     PA6     ------> ADC1_IN6
     PA7     ------> ADC1_IN7
     */
-    HAL_GPIO_DeInit(GPIOA, Arm_sensor_Pin|Pressing_board_1_Pin|Pressing_board_2_Pin|Lift_sensor_Pin);
+    HAL_GPIO_DeInit(GPIOA, Head_sensor_Pin|Pressing_board_1_Pin|Pressing_board_2_Pin|Lift_sensor_Pin);
 
     /* ADC1 interrupt Deinit */
     HAL_NVIC_DisableIRQ(ADC1_2_IRQn);
@@ -163,32 +160,5 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 }
 
 /* USER CODE BEGIN 1 */
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
-{
-	if (hadc == &hadc1)
-	{
-		P_SENSOR[ADC_rank] += HAL_ADC_GetValue(hadc);
-		ADC_rank++;
-		ADC_num++;
 
-		if (ADC_rank == P_SENSOR_NUM && ADC_num == ADC_Sample_num)
-		{
-			ADC_rank = 0;
-			ADC_num = 0;
-		    for (int i=0; i<P_SENSOR_NUM; i++)
-		    {
-		    	P_SENSOR[i] = P_SENSOR[i]/ADC_Sample_num;
-		    }
-			HAL_ADC_Stop(hadc);
-			Check_P_sensor();
-		}
-
-		if (ADC_rank == P_SENSOR_NUM && ADC_num != ADC_Sample_num)
-		{
-			ADC_rank = 0;
-			HAL_ADC_Start_IT(&hadc1);
-		}
-
-	}
-}
 /* USER CODE END 1 */

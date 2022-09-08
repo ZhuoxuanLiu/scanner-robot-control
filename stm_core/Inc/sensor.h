@@ -20,8 +20,14 @@
 #define Pressing_board_right_sensor_channel       	CHANNEL_6_VAL
 #define Lift_sensor_channel       					CHANNEL_7_VAL
 
-#define PRESS_MIN           10
-#define PRESS_MAX           1000
+#define ADSORP_PRESS_MIN           20
+#define ADSORP_PRESS_MAX           2000
+
+#define PUSHING_BOOK_PRESS_MIN           50
+#define PUSHING_BOOK_PRESS_MAX           2000
+
+#define PRESSING_BOARD_PRESS_MIN           10
+#define PRESSING_BOARD_PRESS_MAX           1000
 
 #define RESET_P_Threshold   			600
 #define PRESSING_BOARD_P_Threshold   	600
@@ -38,8 +44,13 @@ extern uint32_t Pressing_board_left_P;
 extern uint32_t Pressing_board_right_P;
 extern uint32_t Lift_P;
 
+extern uint32_t P_SENSOR[4];
+extern uint16_t P_SENSOR_NUM;
+extern uint16_t ADC_Sample_num;
+
 void Check_P_sensor(void);
-void Get_P_sensor_avg(void);
+void Get_P_avg(void);
 void UART_Send_P_Value(void);
+void UART_Test_P_Value(void);
 
 #endif /* INC_SENSOR_H_ */

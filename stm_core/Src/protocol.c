@@ -2,6 +2,7 @@
 #include "queue.h"
 #include "pump.h"
 #include "usart.h"
+#include "sensor.h"
 
 uint8_t tim6_result_data[4];
 uint8_t tim7_result_data[4];
@@ -402,4 +403,20 @@ void handle_extra_queue(void)
 			}
 		}
 	}
+	else if (type == CHECK)
+	{
+		if (head == Head_sensor_Msg)
+		{
+			UART_Test_P_Value();
+		}
+		else if (head == Pushing_book_sensor_Msg)
+		{
+			UART_Test_P_Value();
+		}
+		else if (head == Pressing_board_sensor_Msg)
+		{
+			UART_Test_P_Value();
+		}
+	}
+
 }

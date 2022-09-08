@@ -69,8 +69,8 @@ void Error_Handler(void);
 #define Pressing_board_motor_GPIO_Port GPIOA
 #define Rotating_shelf_motor_Pin GPIO_PIN_3
 #define Rotating_shelf_motor_GPIO_Port GPIOA
-#define Arm_sensor_Pin GPIO_PIN_4
-#define Arm_sensor_GPIO_Port GPIOA
+#define Head_sensor_Pin GPIO_PIN_4
+#define Head_sensor_GPIO_Port GPIOA
 #define Pressing_board_1_Pin GPIO_PIN_5
 #define Pressing_board_1_GPIO_Port GPIOA
 #define Pressing_board_2_Pin GPIO_PIN_6

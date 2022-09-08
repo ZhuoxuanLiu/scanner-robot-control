@@ -13,8 +13,8 @@ float step_deg = 1.8;
 
 Motor *Current_tim6_motor;
 Motor *Current_tim7_motor;
-uint8_t TIM6_stat;
-uint8_t TIM7_stat;
+uint8_t TIM6_stat = OFF;
+uint8_t TIM7_stat = OFF;
 
 Motor *base_motor = &(Motor){
 	.GPIO_Port = Base_DIR_GPIO_Port,
@@ -55,8 +55,8 @@ Motor *head_motor = &(Motor){
     .channel = Head_channel,
 	.deg = 20, 
 	.motor_div = 32, 
-	.rratio = 1, 
-	.pwm_us = 200,
+	.rratio = 51,
+	.pwm_us = 100,
 	.name = Head_motor,
 	.power = OFF,
 	.position = RESETED,
@@ -85,7 +85,7 @@ Motor *pushing_book_motor = &(Motor){
     .GPIO_Pin = Pushing_book_DIR_Pin,
     .htim = &htim7,
     .channel = Pushing_book_channel,
-	.deg = 360, 
+	.deg = 720,
 	.motor_div = 32, 
 	.rratio = 1, 
 	.pwm_us = 100,
@@ -195,7 +195,7 @@ void Forward_motor(Motor *motor, float per){
 		{
 			if (Check_P_cpl == CPL)   // if former check process has already been done
 			{
-				Get_P_sensor_avg();
+				Get_P_avg();
 			}
 		}
 		motor->check_sensor_period = TRUE;
@@ -225,7 +225,7 @@ void Backward_motor(Motor *motor, float per){
 		{
 			if (Check_P_cpl == CPL)   // if former check process has already been done
 			{
-				Get_P_sensor_avg();
+				Get_P_avg();
 			}
 		}
 		motor->check_sensor_period = TRUE;

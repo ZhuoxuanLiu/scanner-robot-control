@@ -55,7 +55,7 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOC, Base_DIR_Pin|Body_DIR_Pin|Head_DIR_Pin|Lift_DIR_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOG, Pushing_book_DIR_Pin|Forward_pressing_board_DIR_Pin|Pressing_board_DIR_Pin|Rotating_shelf_DIR_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOG, Forward_pressing_board_DIR_Pin|Pressing_board_DIR_Pin|Rotating_shelf_DIR_Pin|Pushing_book_DIR_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_RESET);
@@ -71,7 +71,7 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PGPin PGPin PGPin PGPin */
-  GPIO_InitStruct.Pin = Pushing_book_DIR_Pin|Forward_pressing_board_DIR_Pin|Pressing_board_DIR_Pin|Rotating_shelf_DIR_Pin;
+  GPIO_InitStruct.Pin = Forward_pressing_board_DIR_Pin|Pressing_board_DIR_Pin|Rotating_shelf_DIR_Pin|Pushing_book_DIR_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;

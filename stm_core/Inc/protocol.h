@@ -28,6 +28,9 @@
 #define Pressing_board_Motor_Msg			'6'
 #define Rotating_shelf_Motor_Msg			'7'
 #define Pump_Msg							'8'
+#define Head_sensor_Msg						'9'
+#define Pushing_book_sensor_Msg				'a'
+#define Pressing_board_sensor_Msg			'b'
 
 #define POSITION_CHECK			'0'
 #define POWER_CHECK				'1'

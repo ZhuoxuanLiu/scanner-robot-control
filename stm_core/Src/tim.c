@@ -313,7 +313,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)
     PA15     ------> TIM2_CH1
     PB3     ------> TIM2_CH2
     */
-    GPIO_InitStruct.Pin = Head_motor_Pin|Lift_motor_Pin|Base_motor_Pin;
+    GPIO_InitStruct.Pin = Pressing_board_motor_Pin|Rotating_shelf_motor_Pin|Head_motor_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -342,7 +342,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)
     PC8     ------> TIM3_CH3
     PC9     ------> TIM3_CH4
     */
-    GPIO_InitStruct.Pin = Pushing_book_motor_Pin|Forward_pressing_board_motor_Pin|Pressing_board_motor_Pin|Rotating_shelf_motor_Pin;
+    GPIO_InitStruct.Pin = Base_motor_Pin|Lift_motor_Pin|Pushing_book_motor_Pin|Forward_pressing_board_motor_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);

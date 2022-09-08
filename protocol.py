@@ -17,6 +17,9 @@ class Protocol:
     pressing_board_motor = '6'              # 压书板下降电机
     rotating_shelf_motor = '7'              # 旋转书架电机
     vacuum_pump = '8'                       # 真空泵
+    head_sensor = '9'                       # 吸附头传感器
+    pushing_book_sensor = 'a'               # 推书传感器
+    pressing_board_sensor = 'b'             # 压书板传感器
     
     # 类型标志位
     position = '0'
@@ -52,7 +55,7 @@ class Protocol:
     sixty = '6'
     seventy = '7'
     ninety = '9'
-    hundred = 'x'
+    hundred = 'a'
     
     # 备用位
     bak = '0'

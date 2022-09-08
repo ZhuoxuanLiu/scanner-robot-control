@@ -27,7 +27,6 @@ uint8_t RxBuffer[RXBUFFERSIZE];
 uint16_t USART_RX_STA = 0;
 uint32_t UART_Send_timeout = 0;
 
-uint8_t USART_TX_BUF[USART_TRA_LEN];
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart1;
