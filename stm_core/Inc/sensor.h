@@ -38,7 +38,6 @@
 #define Lift_sensor    							'3'
 
 extern uint8_t Sensor_current_check;
-extern uint8_t Check_P_cpl;
 extern uint32_t Adsorp_head_P;
 extern uint32_t Pressing_board_left_P;
 extern uint32_t Pressing_board_right_P;

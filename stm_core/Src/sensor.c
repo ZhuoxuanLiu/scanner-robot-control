@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include "usart.h"
 
-uint8_t Check_P_cpl = CPL;
+
 uint32_t ADC_timeout = 0;
 uint32_t Adsorp_head_P = 0;
 uint32_t Pressing_board_left_P = 0;
@@ -30,7 +30,6 @@ uint32_t sensor_map(long x, long in_min, long in_max, long out_min, long out_max
 
 void Get_P_avg(void)
 {
-    Check_P_cpl = NCPL;
 	for (int i=0; i<4; i++)
 	{
 		avg[i] = 0;
@@ -81,7 +80,6 @@ void Check_P_sensor(void){
 			base_motor->position = RESETED;
 			Stop_motor(base_motor);
 		}
-		Check_P_cpl = CPL;
 	}
 	/* CHECK adsorption head sensor */
 
@@ -105,7 +103,6 @@ void Check_P_sensor(void){
 			lift_motor->position = NOT_RESETED;
 			Stop_motor(lift_motor);
 		}
-		Check_P_cpl = CPL;
 	}
 	/* CHECK Lift sensor */
 
@@ -139,79 +136,54 @@ void Check_P_sensor(void){
 			pressing_board_motor->position = NOT_RESETED;
 			Stop_motor(pressing_board_motor);
 		}
-		Check_P_cpl = CPL;
 	}
 	/* CHECK Pressing board sensor */
 
 	else
 	{
-		Check_P_cpl = CPL;
+
 	}
  }
 
 void UART_Send_P_Value(void)
 {
 	Get_P_avg(); // UART send in callback may cause dead lock
-	while (Check_P_cpl == NCPL)
+	char str[25];
+	if (Sensor_current_check == Adsorp_head_sensor)
 	{
-		ADC_timeout++;
-		if(ADC_timeout>HAL_MAX_DELAY)
-		{
-			ADC_timeout=0;
-			break;
-		}
+		itoa(Adsorp_head_P, str, 10);
 	}
-	if (Check_P_cpl == CPL)
+	else if (Sensor_current_check == Pressing_board_sensor)
 	{
-		char str[25];
-		if (Sensor_current_check == Adsorp_head_sensor)
+		uint16_t send_P;
+		if (Pressing_board_left_P <= Pressing_board_right_P)
 		{
-			itoa(Adsorp_head_P, str, 10);
-		}
-		else if (Sensor_current_check == Pressing_board_sensor)
-		{
-			uint16_t send_P;
-			if (Pressing_board_left_P <= Pressing_board_right_P)
-			{
-				send_P = Pressing_board_left_P;
-			}
-			else
-			{
-				send_P = Pressing_board_right_P;
-			}
-			itoa(send_P, str, 10);
-		}
-		else if (Sensor_current_check == Lift_sensor)
-		{
-			itoa(Lift_P, str, 10);
+			send_P = Pressing_board_left_P;
 		}
 		else
 		{
-			itoa(0, str, 10);
+			send_P = Pressing_board_right_P;
 		}
-		UART_Send((uint8_t *)str);
+		itoa(send_P, str, 10);
 	}
+	else if (Sensor_current_check == Lift_sensor)
+	{
+		itoa(Lift_P, str, 10);
+	}
+	else
+	{
+		itoa(0, str, 10);
+	}
+	UART_Send((uint8_t *)str);
 }
 
 void UART_Test_P_Value(void)
 {
 	Get_P_avg(); // UART send in callback may cause dead lock
-	while (Check_P_cpl == NCPL)
-	{
-		ADC_timeout++;
-		if(ADC_timeout>HAL_MAX_DELAY)
-		{
-			ADC_timeout=0;
-			break;
-		}
-	}
-	if (Check_P_cpl == CPL)
-	{
-		char str[25];
-		itoa(Lift_P, str, 10);
-		//itoa(Lift_P, str, 10);
-		UART_Send((uint8_t *)str);
-	}
+	char str[25];
+	itoa(Lift_P, str, 10);
+	//itoa(Lift_P, str, 10);
+	UART_Send((uint8_t *)str);
 }
 
 

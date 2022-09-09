@@ -8,6 +8,7 @@
 #include "tim.h"
 #include "usart.h"
 #include "protocol.h"
+#include <stdlib.h>
 
 float step_deg = 1.8;
 
@@ -16,12 +17,13 @@ Motor *Current_tim7_motor;
 uint8_t TIM6_stat = OFF;
 uint8_t TIM7_stat = OFF;
 
+// 0是翻书 1是复位
 Motor *base_motor = &(Motor){
 	.GPIO_Port = Base_DIR_GPIO_Port,
     .GPIO_Pin = Base_DIR_Pin,
     .htim = &htim7,
     .channel = Base_channel,
-	.deg = 120,
+	.deg = 42,
 	.motor_div = 32,
 	.rratio = 28,
 	.pwm_us = 100,
@@ -29,15 +31,16 @@ Motor *base_motor = &(Motor){
 	.power = OFF,
 	.position = NOT_RESETED,
 	.check_sensor_period = TRUE,
-	.check_sensor_dir = BACKWARD_PERIOD
+	.check_sensor_dir = FORWARD_PERIOD
 };
 
+// 1是升高 0是下降
 Motor *body_motor = &(Motor){
 	.GPIO_Port = Body_DIR_GPIO_Port,
     .GPIO_Pin = Body_DIR_Pin,
     .htim = &htim6,
     .channel = Body_channel,
-	.deg = 360, 
+	.deg = 3780,
 	.motor_div = 32, 
 	.rratio = 1, 
 	.pwm_us = 200,
@@ -48,6 +51,7 @@ Motor *body_motor = &(Motor){
 	.check_sensor_dir = NONE
 };
 
+// 1是反着转 0是掀书
 Motor *head_motor = &(Motor){
 	.GPIO_Port = Head_DIR_GPIO_Port,
     .GPIO_Pin = Head_DIR_Pin,
@@ -56,7 +60,7 @@ Motor *head_motor = &(Motor){
 	.deg = 20, 
 	.motor_div = 32, 
 	.rratio = 51,
-	.pwm_us = 100,
+	.pwm_us = 200,
 	.name = Head_motor,
 	.power = OFF,
 	.position = RESETED,
@@ -64,15 +68,16 @@ Motor *head_motor = &(Motor){
 	.check_sensor_dir = NONE
 };
 
+// 1是上升 0 是下降
 Motor *lift_motor = &(Motor){
 	.GPIO_Port = Lift_DIR_GPIO_Port,
     .GPIO_Pin = Lift_DIR_Pin,
     .htim = &htim7,
     .channel = Lift_channel,
-	.deg = 360, 
+	.deg = 165,
 	.motor_div = 32, 
 	.rratio = 1, 
-	.pwm_us = 500,
+	.pwm_us = 1500,
 	.name = Lift_motor,
 	.power = OFF,
 	.position = RESETED,
@@ -80,15 +85,16 @@ Motor *lift_motor = &(Motor){
 	.check_sensor_dir = FORWARD_PERIOD
 };
 
+// 1是返回 0是推书 9
 Motor *pushing_book_motor = &(Motor){
 	.GPIO_Port = Pushing_book_DIR_GPIO_Port,
     .GPIO_Pin = Pushing_book_DIR_Pin,
     .htim = &htim7,
     .channel = Pushing_book_channel,
-	.deg = 720,
+	.deg = 12960,
 	.motor_div = 32, 
 	.rratio = 1, 
-	.pwm_us = 100,
+	.pwm_us = 50,
 	.name = Pushing_book_motor,
 	.power = OFF,
 	.position = RESETED,
@@ -155,7 +161,7 @@ void Start_TIM2_Motor(uint16_t deg, uint16_t motor_div, uint16_t rratio, uint32_
 
 void Stop_TIM2_Motor(void){
 	HAL_TIM_Base_Stop(&htim6);
-	HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_ALL);
+	HAL_TIM_PWM_Stop(&htim2, Current_tim6_motor->channel);
 	TIM6_IT_count = 0;
 }
 
@@ -169,8 +175,9 @@ void Start_TIM3_Motor(uint16_t deg, uint16_t motor_div, uint16_t rratio, uint32_
 
 void Stop_TIM3_Motor(void){
 	HAL_TIM_Base_Stop(&htim7);
-	HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_ALL);
+	HAL_TIM_PWM_Stop(&htim3, Current_tim7_motor->channel);
 	TIM7_IT_count = 0;
+	UART_Send((uint8_t *) "stop");
 }
 
 
@@ -191,12 +198,9 @@ void Forward_motor(Motor *motor, float per){
 	if (motor->check_sensor_dir == FORWARD_PERIOD){
 		motor->check_sensor_period = TRUE;
 		Sensor_current_check = motor->name;
-		while (motor->position == RESETED && motor->check_sensor_period == TRUE)
+		while (motor->check_sensor_period == TRUE)
 		{
-			if (Check_P_cpl == CPL)   // if former check process has already been done
-			{
-				Get_P_avg();
-			}
+			Get_P_avg();
 		}
 		motor->check_sensor_period = TRUE;
 	}
@@ -221,12 +225,9 @@ void Backward_motor(Motor *motor, float per){
 	if (motor->check_sensor_dir == BACKWARD_PERIOD){
 		motor->check_sensor_period = TRUE;
 		Sensor_current_check = motor->name;
-		while (motor->position == NOT_RESETED && motor->check_sensor_period == TRUE)
+		while (motor->check_sensor_period == TRUE)
 		{
-			if (Check_P_cpl == CPL)   // if former check process has already been done
-			{
-				Get_P_avg();
-			}
+			Get_P_avg();
 		}
 		motor->check_sensor_period = TRUE;
 	}
