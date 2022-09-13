@@ -1,6 +1,5 @@
+
 # 以下变量为协议设置
-
-
 class Protocol:
     # send protocol
     check = '0'
@@ -26,8 +25,8 @@ class Protocol:
     power = '1'
     
     # 是否复位
-    not_reseted = '0'
-    reseted = '1'
+    not_reseted = '1'
+    reseted = '0'
     
     # 旋转方向
     forward = '1'

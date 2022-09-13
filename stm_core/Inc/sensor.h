@@ -29,12 +29,12 @@
 #define PRESSING_BOARD_PRESS_MIN           10
 #define PRESSING_BOARD_PRESS_MAX           1000
 
-#define RESET_P_Threshold   			600
+#define RESET_P_Threshold   			250
 #define PRESSING_BOARD_P_Threshold   	600
-#define LIFT_P_Threshold   				600
+#define LIFT_P_Threshold   				180
 
-#define Adsorp_head_sensor         				'1'
-#define Pressing_board_sensor            		'2'
+#define Adsorp_head_sensor         				'0'
+#define Pressing_board_sensor            		'6'
 #define Lift_sensor    							'3'
 
 extern uint8_t Sensor_current_check;

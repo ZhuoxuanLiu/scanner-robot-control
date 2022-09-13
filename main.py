@@ -11,7 +11,7 @@ stop = False
 def sig_handler(signum, frame):
     global stop
     stop = True
-    print("进程被终止")
+    print("process terminated")
 
 def bind_signal():
 # 设置相应信号处理的handler
@@ -29,6 +29,15 @@ class Robot:
         # 初始化照相机
         self.cam = Camera(self.sys_state, './data')
         self.t_detect_malfunction()
+        self.command_dict = {
+            '1': self.eng.initial_check,
+            '2': self.eng.activate_vacuum_pump,
+            '3': self.eng.deactivate_vacuum_pump,
+            '4': self.eng.rotate_revised,
+            '5': self.cam.capture,
+            '6': self.eng.whole_process,
+            '7': self.eng.in_out_demo,
+        }
     
     
     def start(self):
@@ -74,19 +83,25 @@ class Robot:
 
 
 if __name__ == '__main__':
-    command = input('[1] 开始\n[2] 退出\n请输入指令:')
-    if command == 1:
+    command = input('[1] start \n[2] quit \nplease input:')
+    if command == '1':
         print('robot started!')
         robot = Robot()
-        robot.t_start()
         bind_signal()
         while True:
-            time.sleep(1)
-            if stop:
-                robot.stop()
+            command = input('[1] initial check \n[2] activate pump \n[3] deactivate pump \
+                                \n[4] flip single move \n[5] camera test \n[6] whole process\n\
+                                [7] in out whole \n[q] quit \nplease input:')
+            if command not in ['1', '2', '3', '4', '5', '6', '7']:
                 print('---robot stopped---')
-                break
-    elif command == 2:
+                break 
+            robot.command_dict[command]()
+            if stop:
+                # robot.stop()
+                print('---robot stopped---')
+                break1
+                11111
+    elif command == '2':
         print('quit!')
     else:
         print('wrong command!')

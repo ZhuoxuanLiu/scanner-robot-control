@@ -1,11 +1,11 @@
 from protocol import Protocol
-from database import Mongo
+from utils.jsonUtils import JsonDB
 
     
 class SysStat:
     
     position = {
-        Protocol.base_motor: Protocol.reseted,
+        Protocol.base_motor: Protocol.not_reseted,
         Protocol.body_motor: Protocol.reseted,
         Protocol.head_motor: Protocol.reseted,
         Protocol.lift_motor: Protocol.reseted,
@@ -37,13 +37,15 @@ class SysStat:
     }
     
     def __init__(self) -> None:
-        self.mongo = Mongo()
-        self.params = self.mongo.get_document()
+        self.jdb = JsonDB()
+        if self.jdb.get_document() != {}:
+            self.params = self.jdb.get_document()
+            self.params['malfunction'] = False
     
     
     def update_position(self, motor, position):
         self.position[motor] = position
-        self.mongo.update_document(self.params)
+        self.jdb.update_document(self.params)
         
         
     def get_position(self, motor):
@@ -52,7 +54,7 @@ class SysStat:
 
     def update_power(self, param, stat):
         self.power[param] = stat
-        self.mongo.update_document(self.params)
+        self.jdb.update_document(self.params)
         
         
     def get_power(self, param):
@@ -65,7 +67,7 @@ class SysStat:
     
     def update_book_stat(self, stat):
         self.params['book'] = stat
-        self.mongo.update_document(self.params)
+        self.jdb.update_document(self.params)
 
 
     def get_last_page_stat(self):
@@ -74,7 +76,7 @@ class SysStat:
     
     def update_last_page_stat(self, stat):
         self.params['last_page'] = stat
-        self.mongo.update_document(self.params)
+        self.jdb.update_document(self.params)
         
     
     def get_page_num(self):
@@ -83,4 +85,4 @@ class SysStat:
     
     def update_page_num(self, stat):
         self.params['page_num'] = stat
-        self.mongo.update_document(self.params)
+        self.jdb.update_document(self.params)

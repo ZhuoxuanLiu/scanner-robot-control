@@ -117,23 +117,23 @@ class Camera:
         img_size = img.size
         h = img_size[1]  # 图片高度
         w = img_size[0]  # 图片宽度
-        left = img.crop((0, h, w / 2, h))    # crop函数里面四个数据分别为左、上、右、下，按照这个规则来分割你想的比例图片。
+        left = img.crop((0, 0, w / 2, h))    # crop函数里面四个数据分别为左、上、右、下，按照这个规则来分割你想的比例图片。
         self.page_num_plus1()
-        left_path = img_path.rpartition('/')[0] + '/oringin/' + str(self.page_num) + '.jpg'
-        left_name = 'page' + str(self.page_num) + '.jpg'
+        left_path = img_path.rpartition('/')[0] + '/' + str(self.page_num) + '.png'
+        left_name = 'page' + str(self.page_num) + '.png'
         left.save(left_path)
         if not last_page:
-            right = img.crop((w / 2, h, w, h))
+            right = img.crop((w / 2, 0, w, h))
             self.page_num_plus1()
-            right_path = img_path.rpartition('/')[0] + '/oringin/' + str(self.page_num) + '.jpg'
-            right_name = 'page' + str(self.page_num) + '.jpg'
+            right_path = img_path.rpartition('/')[0] + '/' + str(self.page_num) + '.png'
+            right_name = 'page' + str(self.page_num) + '.png'
             right.save(right_path)
         os.remove(img_path)
         return (left_name, right_name if not last_page else None)
     
     
     def capture(self):
-        img_path = self.save_path + '/oringin/page.jpg'
+        img_path = self.save_path + '/oringin/page.png'
         self.cam.capture(img_path)
         self.img_process_queue.put(img_path)
         
@@ -177,7 +177,7 @@ class Camera:
                 time.sleep(0.5)
                 
                 
-    def t_process(self, bi=False):
+    def t_process(self, bi=True):
         Thread(target=self.process, args=(bi,), daemon=True).start()
     
     

@@ -11,7 +11,7 @@
 
 void activate_pump(void)
 {
-	HAL_GPIO_WritePin(Vacuum_pump_GPIO_Port, Vacuum_pump_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(Vacuum_pump_GPIO_Port, Vacuum_pump_Pin, GPIO_PIN_RESET);
 	extra_result_str(Vacuum_pump, ON);
 	UART_Send(extra_result_data);
 }
@@ -19,7 +19,7 @@ void activate_pump(void)
 
 void deactivate_pump(void)
 {
-	HAL_GPIO_WritePin(Vacuum_pump_GPIO_Port, Vacuum_pump_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(Vacuum_pump_GPIO_Port, Vacuum_pump_Pin, GPIO_PIN_SET);
 	extra_result_str(Vacuum_pump, OFF);
 	UART_Send(extra_result_data);
 }

@@ -91,9 +91,12 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART1_UART_Init();
+  MX_USART2_UART_Init();
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
-
+  QueueInit(&htim6_queue);
+  QueueInit(&htim7_queue);
+  QueueInit(&extra_queue);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -116,7 +119,6 @@ int main(void)
     	handle_extra_queue();
 	  }
 	/* CHECK P_SENSOR VALUE */
-
 	/* CHECK P_SENSOR VALUE */
 
   }

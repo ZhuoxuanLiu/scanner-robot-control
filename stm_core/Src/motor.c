@@ -17,7 +17,7 @@ Motor *Current_tim7_motor;
 uint8_t TIM6_stat = OFF;
 uint8_t TIM7_stat = OFF;
 
-// 0是翻书 1是复位
+// 0是翻书 1是复位  已修改
 Motor *base_motor = &(Motor){
 	.GPIO_Port = Base_DIR_GPIO_Port,
     .GPIO_Pin = Base_DIR_Pin,
@@ -30,8 +30,10 @@ Motor *base_motor = &(Motor){
 	.name = Base_motor,
 	.power = OFF,
 	.position = NOT_RESETED,
+    .forward = GPIO_PIN_RESET,
+    .backward = GPIO_PIN_SET,
 	.check_sensor_period = TRUE,
-	.check_sensor_dir = FORWARD_PERIOD
+	.check_sensor_dir = BACKWARD_PERIOD
 };
 
 // 1是升高 0是下降
@@ -40,13 +42,15 @@ Motor *body_motor = &(Motor){
     .GPIO_Pin = Body_DIR_Pin,
     .htim = &htim6,
     .channel = Body_channel,
-	.deg = 3780,
+	.deg = 3700,
 	.motor_div = 32, 
 	.rratio = 1, 
-	.pwm_us = 200,
+	.pwm_us = 100,
 	.name = Body_motor,
 	.power = OFF,
 	.position = RESETED,
+    .forward = GPIO_PIN_SET,
+    .backward = GPIO_PIN_RESET,
 	.check_sensor_period = NONE,
 	.check_sensor_dir = NONE
 };
@@ -60,10 +64,12 @@ Motor *head_motor = &(Motor){
 	.deg = 20, 
 	.motor_div = 32, 
 	.rratio = 51,
-	.pwm_us = 200,
+	.pwm_us = 50,
 	.name = Head_motor,
 	.power = OFF,
 	.position = RESETED,
+    .forward = GPIO_PIN_RESET,
+    .backward = GPIO_PIN_SET,
 	.check_sensor_period = NONE,
 	.check_sensor_dir = NONE
 };
@@ -77,10 +83,12 @@ Motor *lift_motor = &(Motor){
 	.deg = 165,
 	.motor_div = 32, 
 	.rratio = 1, 
-	.pwm_us = 1500,
+	.pwm_us = 3000,
 	.name = Lift_motor,
 	.power = OFF,
 	.position = RESETED,
+    .forward = GPIO_PIN_SET,
+    .backward = GPIO_PIN_RESET,
 	.check_sensor_period = TRUE,
 	.check_sensor_dir = FORWARD_PERIOD
 };
@@ -98,60 +106,71 @@ Motor *pushing_book_motor = &(Motor){
 	.name = Pushing_book_motor,
 	.power = OFF,
 	.position = RESETED,
+    .forward = GPIO_PIN_RESET,
+    .backward = GPIO_PIN_SET,
 	.check_sensor_period = NONE,
 	.check_sensor_dir = NONE
 };
 
+// 0向前 1向后
 Motor *forward_pressing_board_motor = &(Motor){
 	.GPIO_Port = Forward_pressing_board_DIR_GPIO_Port,
     .GPIO_Pin = Forward_pressing_board_DIR_Pin,
     .htim = &htim7,
     .channel = Forward_pressing_board_channel,
-	.deg = 360, 
+	.deg = 1080,
 	.motor_div = 32, 
 	.rratio = 1, 
-	.pwm_us = 200,
+	.pwm_us = 100,
 	.name = Forward_pressing_board_motor,
 	.power = OFF,
 	.position = RESETED,
+    .forward = GPIO_PIN_RESET,
+    .backward = GPIO_PIN_SET,
 	.check_sensor_period = NONE,
 	.check_sensor_dir = NONE
 };
 
+// 0向上 1向下
 Motor *pressing_board_motor = &(Motor){
 	.GPIO_Port = Pressing_board_DIR_GPIO_Port,
     .GPIO_Pin = Pressing_board_DIR_Pin,
     .htim = &htim6,
     .channel = Pressing_board_channel,
-	.deg = 360, 
+	.deg = 3600,
 	.motor_div = 32, 
 	.rratio = 1, 
-	.pwm_us = 200,
+	.pwm_us = 100,
 	.name = Pressing_board_motor,
 	.power = OFF,
 	.position = RESETED,
+    .forward = GPIO_PIN_SET,
+    .backward = GPIO_PIN_RESET,
 	.check_sensor_period = TRUE,
-	.check_sensor_dir = FORWARD_PERIOD
+	.check_sensor_dir = NONE
 };
 
+// 1是放书 0是复位
 Motor *rotating_shelf_motor = &(Motor){
 	.GPIO_Port = Rotating_shelf_DIR_GPIO_Port,
     .GPIO_Pin = Rotating_shelf_DIR_Pin,
     .htim = &htim6,
     .channel = Rotating_shelf_channel,
-	.deg = 360, 
+	.deg = 1000,
 	.motor_div = 32, 
 	.rratio = 28, 
-	.pwm_us = 100,
+	.pwm_us = 30,
 	.name = Rotating_shelf_motor,
 	.power = OFF,
 	.position = RESETED,
+    .forward = GPIO_PIN_RESET,
+    .backward = GPIO_PIN_SET,
 	.check_sensor_period = NONE,
 	.check_sensor_dir = NONE
 };
 
 
-void Start_TIM2_Motor(uint16_t deg, uint16_t motor_div, uint16_t rratio, uint32_t pwm_us, uint32_t channel){
+void Start_TIM2_Motor(uint32_t deg, uint16_t motor_div, uint16_t rratio, uint32_t pwm_us, uint32_t channel){
 	uint32_t pulse_num = deg*motor_div*rratio/step_deg;
 	MX_TIM6_Init(pulse_num, pwm_us);
 	MX_TIM2_Init(pwm_us);
@@ -165,7 +184,7 @@ void Stop_TIM2_Motor(void){
 	TIM6_IT_count = 0;
 }
 
-void Start_TIM3_Motor(uint16_t deg, uint16_t motor_div, uint16_t rratio, uint32_t pwm_us, uint32_t channel){
+void Start_TIM3_Motor(uint32_t deg, uint16_t motor_div, uint16_t rratio, uint32_t pwm_us, uint32_t channel){
 	uint32_t pulse_num = deg*motor_div*rratio/step_deg;
 	MX_TIM7_Init(pulse_num, pwm_us);
 	MX_TIM3_Init(pwm_us);
@@ -194,6 +213,7 @@ void Forward_motor(Motor *motor, float per){
 		Start_TIM3_Motor((uint16_t) (motor->deg)*per, motor->motor_div, motor->rratio, motor->pwm_us, motor->channel);
 	}
     motor->power = ON;
+    motor->position = NOT_RESETED;
 	/* CHECK P ONLY IN FORWARD PROCESS */
 	if (motor->check_sensor_dir == FORWARD_PERIOD){
 		motor->check_sensor_period = TRUE;
@@ -205,7 +225,6 @@ void Forward_motor(Motor *motor, float per){
 		motor->check_sensor_period = TRUE;
 	}
 	/* CHECK P ONLY IN FORWARD PROCESS */
-    motor->position = NOT_RESETED;
 }
 
 void Backward_motor(Motor *motor, float per){
@@ -213,14 +232,15 @@ void Backward_motor(Motor *motor, float per){
 	if (motor->htim == &htim6){
 		TIM6_stat = ON;
 		Current_tim6_motor = motor;
-		Start_TIM2_Motor((uint16_t) (motor->deg)*per, motor->motor_div, motor->rratio, motor->pwm_us, motor->channel);
+		Start_TIM2_Motor((uint32_t) (motor->deg)*per, motor->motor_div, motor->rratio, motor->pwm_us, motor->channel);
 	}
 	else if (motor->htim == &htim7){
 		TIM7_stat = ON;
 		Current_tim7_motor = motor;
-		Start_TIM3_Motor((uint16_t) (motor->deg)*per, motor->motor_div, motor->rratio, motor->pwm_us, motor->channel);
+		Start_TIM3_Motor((uint32_t) (motor->deg)*per, motor->motor_div, motor->rratio, motor->pwm_us, motor->channel);
 	}
     motor->power = ON;
+    motor->position = RESETED;
 	/* CHECK P ONLY IN RESET PROCESS */
 	if (motor->check_sensor_dir == BACKWARD_PERIOD){
 		motor->check_sensor_period = TRUE;
@@ -232,7 +252,6 @@ void Backward_motor(Motor *motor, float per){
 		motor->check_sensor_period = TRUE;
 	}
 	/* CHECK P ONLY IN RESET PROCESS */
-    motor->position = RESETED;
 }
 
 void Stop_motor(Motor *motor){

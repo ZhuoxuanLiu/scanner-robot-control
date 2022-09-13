@@ -21,7 +21,7 @@ uint8_t Sensor_current_check;
 
 uint32_t P_SENSOR[4];
 uint16_t P_SENSOR_NUM = 4;
-uint16_t ADC_Sample_num = 10;
+uint16_t ADC_Sample_num = 15;
 
 uint32_t sensor_map(long x, long in_min, long in_max, long out_min, long out_max)
 {

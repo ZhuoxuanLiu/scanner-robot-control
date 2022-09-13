@@ -40,8 +40,8 @@
 
 /* Define timer -------------------------------------*/
 
-#define SET_Forward_DIR(x)                         HAL_GPIO_WritePin(x->GPIO_Port,x->GPIO_Pin,FORWARD)
-#define SET_Backward_DIR(x)                        HAL_GPIO_WritePin(x->GPIO_Port,x->GPIO_Pin,BACKWARD)
+#define SET_Forward_DIR(x)                         HAL_GPIO_WritePin(x->GPIO_Port,x->GPIO_Pin,x->forward)
+#define SET_Backward_DIR(x)                        HAL_GPIO_WritePin(x->GPIO_Port,x->GPIO_Pin,x->backward)
 
 typedef struct Motor
 {
@@ -49,13 +49,15 @@ typedef struct Motor
     uint16_t GPIO_Pin;
     TIM_HandleTypeDef *htim;
     uint32_t channel;
-    uint16_t deg;
+    uint32_t deg;
     uint16_t motor_div;
     uint16_t rratio;
     uint32_t pwm_us;
     uint8_t name;
     uint8_t power;
     uint8_t position;
+    uint8_t forward;
+    uint8_t backward;
     uint8_t check_sensor_period;
     uint8_t check_sensor_dir;
 }Motor;
